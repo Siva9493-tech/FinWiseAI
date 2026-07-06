@@ -76,6 +76,12 @@ export interface HistoryApiResponse {
   ok: boolean;
   error?: string;
   records?: AnalysisRecord[];
+  /**
+   * Whether a cloud backend (Google Sheets) is actually configured. Lets the
+   * client distinguish "cloud is genuinely empty" (→ clear the local mirror)
+   * from "no backend, keep the local mirror". Only set on GET responses.
+   */
+  configured?: boolean;
 }
 
 /** Result of attempting to persist a record to the cloud. */

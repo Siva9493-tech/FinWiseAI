@@ -47,16 +47,16 @@ export const POST: APIRoute = async ({ request }) => {
 // ---- List records -----------------------------------------------------------
 export const GET: APIRoute = async () => {
   if (!isConfigured()) {
-    // Client will fall back to its local mirror.
-    return json({ ok: true, records: [] }, 200);
+    // No backend → tell the client to keep its local mirror as-is.
+    return json({ ok: true, configured: false, records: [] }, 200);
   }
 
   try {
     const records = await listRecords();
-    return json({ ok: true, records }, 200);
+    return json({ ok: true, configured: true, records }, 200);
   } catch (err) {
     if (err instanceof SheetsNotConfigured) {
-      return json({ ok: true, records: [] }, 200);
+      return json({ ok: true, configured: false, records: [] }, 200);
     }
     console.error('[history] list error:', (err as Error).message);
     return json({ ok: false, error: 'Could not load cloud history.' }, 502);

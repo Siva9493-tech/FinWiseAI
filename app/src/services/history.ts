@@ -219,24 +219,69 @@ export async function syncPending(): Promise<number> {
 }
 
 /**
- * Load records for the History page. Prefers the cloud (source of record) and
- * merges in any local-only records that haven't synced yet, so the user always
- * sees their latest analyses. Falls back to purely local on any failure.
+ * Reconcile the local mirror against the authoritative cloud list.
+ *
+ * The cloud (Google Sheets) is the source of truth: every cloud record is
+ * written back as a `synced` entry, and any local record that is NOT in the
+ * cloud is kept ONLY if it has never successfully synced yet (`pending`/
+ * `error`) — those are genuine offline-first records still waiting to upload.
+ *
+ * A previously-`synced` record that is absent from the cloud means it was
+ * deleted server-side, so we drop it (fixes stale cached records lingering
+ * after a Sheets deletion). If the cloud is empty and nothing is pending, the
+ * mirror is cleared entirely.
+ *
+ * Returns the reconciled records, newest first.
+ */
+function reconcileWithCloud(cloud: AnalysisRecord[]): AnalysisRecord[] {
+  const cloudIds = new Set(cloud.map((r) => r.id));
+  const unsyncedLocal = readStore().filter(
+    (s) => s.status !== 'synced' && !cloudIds.has(s.record.id)
+  );
+
+  const next: StoredRecord[] = [
+    ...cloud.map((record) => ({ record, status: 'synced' as const, attempts: 0 })),
+    ...unsyncedLocal,
+  ];
+  writeStore(next);
+
+  return next
+    .map((s) => s.record)
+    .sort((a, b) => b.timestamp.localeCompare(a.timestamp));
+}
+
+/**
+ * Load records for the History page.
+ *
+ * Cloud (Google Sheets) is the source of truth whenever we're online and a
+ * backend is configured: we fetch it, REPLACE the local mirror with it (plus
+ * any not-yet-synced offline records), and render only that. Stale cached
+ * records deleted from the sheet never survive.
+ *
+ * When offline, the backend is unconfigured, or the fetch fails, we fall back
+ * to the local mirror untouched — preserving offline-first behavior.
  */
 export async function loadHistory(): Promise<AnalysisRecord[]> {
   const local = getLocalRecords();
+
+  // Offline → local mirror only, never wipe it.
+  if (typeof navigator !== 'undefined' && navigator.onLine === false) {
+    return local;
+  }
+
   try {
     const res = await fetch('/api/history', { method: 'GET' });
     if (!res.ok) return local;
     const data = (await res.json()) as HistoryApiResponse;
     if (!data.ok || !data.records) return local;
 
-    // Merge: cloud records win, local-only (pending) records are appended.
-    const cloudIds = new Set(data.records.map((r) => r.id));
-    const localOnly = local.filter((r) => !cloudIds.has(r.id));
-    return [...data.records, ...localOnly].sort((a, b) =>
-      b.timestamp.localeCompare(a.timestamp)
-    );
+    // No cloud backend configured → keep the local mirror as-is (don't clear).
+    if (data.configured === false) return local;
+
+    // Cloud is authoritative: replace the mirror and render only cloud
+    // records (+ any still-pending offline records). An empty cloud clears
+    // the mirror automatically.
+    return reconcileWithCloud(data.records);
   } catch {
     return local;
   }
