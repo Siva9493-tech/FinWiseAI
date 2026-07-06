@@ -1,0 +1,179 @@
+---
+import Icon from '../../components/Icon.astro';
+---
+
+<!--
+  Result card. Hidden until an EMI calculation completes; the client script
+  in EmiForm.astro toggles the visibility and fills the data-emi-* slots.
+-->
+<section
+  id="emi-result"
+  class="hidden"
+  aria-live="polite"
+  aria-label="EMI calculation result"
+>
+  <article class="glass-card animate-reveal p-6 md:p-7">
+    <!-- Success flash banner -->
+    <div id="emi-success-banner" class="hidden mb-4 flex items-center gap-2 rounded-lg bg-success/10 border border-success/20 px-3 py-2">
+      <span class="flex h-5 w-5 items-center justify-center rounded-full bg-success/20 text-success">
+        <Icon name="check" size="12" />
+      </span>
+      <p class="text-xs font-medium text-success">EMI calculated successfully</p>
+    </div>
+
+    <!-- Headline EMI -->
+    <div class="flex items-start gap-4">
+      <span
+        class="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-primary/15 text-primary"
+      >
+        <Icon name="calculator" size="24" />
+      </span>
+      <div class="min-w-0">
+        <p class="text-xs font-medium uppercase tracking-wider text-ink-subtle">Monthly EMI</p>
+        <h3 id="emi-monthly" class="mt-0.5 font-display text-3xl font-semibold tracking-tight text-ink md:text-4xl">
+          &mdash;
+        </h3>
+        <p class="mt-1 text-sm text-ink-subtle">
+          Estimated monthly instalment for your loan.
+        </p>
+      </div>
+    </div>
+
+    <!-- Key metrics -->
+    <div class="mt-6 grid grid-cols-2 gap-3 lg:grid-cols-4">
+      <div class="rounded-lg border border-hairline bg-surface-1/60 p-4">
+        <p class="text-xs text-ink-subtle">Total Interest</p>
+        <p id="emi-total-interest" class="mt-1 text-lg font-semibold tracking-tight text-ink">
+          &mdash;
+        </p>
+      </div>
+      <div class="rounded-lg border border-hairline bg-surface-1/60 p-4">
+        <p class="text-xs text-ink-subtle">Total Payment</p>
+        <p id="emi-total-payment" class="mt-1 text-lg font-semibold tracking-tight text-ink">
+          &mdash;
+        </p>
+      </div>
+      <div class="rounded-lg border border-hairline bg-surface-1/60 p-4">
+        <p class="text-xs text-ink-subtle">Principal</p>
+        <p id="emi-principal" class="mt-1 text-lg font-semibold tracking-tight text-ink">
+          &mdash;
+        </p>
+      </div>
+      <div class="rounded-lg border border-hairline bg-surface-1/60 p-4">
+        <p class="text-xs text-ink-subtle">Interest %</p>
+        <p id="emi-interest-pct" class="mt-1 text-lg font-semibold tracking-tight text-ink">
+          &mdash;
+        </p>
+      </div>
+    </div>
+
+    <!-- Loan Summary Cards -->
+    <div class="mt-6">
+      <p class="text-xs font-medium uppercase tracking-wider text-ink-subtle">Loan Summary</p>
+      <div class="mt-3 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+        <div class="rounded-lg border border-hairline bg-surface-1/60 p-4">
+          <div class="flex items-center gap-2">
+            <Icon name="landmark" size="16" class="text-ink-subtle" />
+            <p class="text-xs text-ink-subtle">Loan Type</p>
+          </div>
+          <p id="emi-summary-type" class="mt-2 text-sm font-medium tracking-tight text-ink">
+            &mdash;
+          </p>
+        </div>
+        <div class="rounded-lg border border-hairline bg-surface-1/60 p-4">
+          <div class="flex items-center gap-2">
+            <Icon name="trending-up" size="16" class="text-ink-subtle" />
+            <p class="text-xs text-ink-subtle">Interest Rate</p>
+          </div>
+          <p id="emi-summary-rate" class="mt-2 text-sm font-medium tracking-tight text-ink">
+            &mdash;
+          </p>
+        </div>
+        <div class="rounded-lg border border-hairline bg-surface-1/60 p-4">
+          <div class="flex items-center gap-2">
+            <Icon name="clock" size="16" class="text-ink-subtle" />
+            <p class="text-xs text-ink-subtle">Duration</p>
+          </div>
+          <p id="emi-summary-duration" class="mt-2 text-sm font-medium tracking-tight text-ink">
+            &mdash;
+          </p>
+        </div>
+        <div class="rounded-lg border border-hairline bg-surface-1/60 p-4">
+          <div class="flex items-center gap-2">
+            <Icon name="calendar" size="16" class="text-ink-subtle" />
+            <p class="text-xs text-ink-subtle">Payment Frequency</p>
+          </div>
+          <p id="emi-summary-frequency" class="mt-2 text-sm font-medium tracking-tight text-ink">
+            &mdash;
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Payment Breakdown -->
+    <div class="mt-6">
+      <p class="text-xs font-medium uppercase tracking-wider text-ink-subtle">Payment Breakdown</p>
+      <div class="mt-3">
+        <!-- Visual progress bar -->
+        <div class="flex h-3 overflow-hidden rounded-full bg-surface-2">
+          <div
+            id="emi-bar-principal"
+            class="h-full bg-success transition-[width] duration-500 ease-out"
+            style="width: 0%;"
+          ></div>
+          <div
+            id="emi-bar-interest"
+            class="h-full bg-ink-muted/40 transition-[width] duration-500 ease-out"
+            style="width: 0%;"
+          ></div>
+        </div>
+        <!-- Legend -->
+        <div class="mt-3 flex justify-between gap-4">
+          <div class="flex items-center gap-2">
+            <span class="h-2.5 w-2.5 rounded-full bg-success"></span>
+            <span class="text-xs text-ink-subtle">Principal</span>
+            <span id="emi-principal-pct" class="text-xs font-medium text-ink">&mdash;</span>
+            <span id="emi-legend-principal" class="text-xs text-ink-tertiary">&mdash;</span>
+          </div>
+          <div class="flex items-center gap-2">
+            <span class="h-2.5 w-2.5 rounded-full bg-ink-muted/40"></span>
+            <span class="text-xs text-ink-subtle">Interest</span>
+            <span id="emi-interest-pct" class="text-xs font-medium text-ink">&mdash;</span>
+            <span id="emi-legend-interest" class="text-xs text-ink-tertiary">&mdash;</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- AI EMI Optimization placeholder (future Groq integration) -->
+    <div class="mt-5 rounded-lg border border-dashed border-hairline-strong bg-surface-1/40 p-4">
+      <div class="flex items-center gap-2">
+        <span class="flex h-7 w-7 items-center justify-center rounded-md bg-primary/15 text-primary">
+          <Icon name="sparkles" size="14" />
+        </span>
+        <p class="text-sm font-medium text-ink">AI EMI Optimization</p>
+        <span class="ml-auto inline-flex items-center gap-1 rounded-full bg-surface-2 px-2 py-0.5 text-[11px] font-medium text-ink-subtle">
+          <Icon name="lock" size="11" />
+          Coming Soon (Groq AI)
+        </span>
+      </div>
+      <p class="mt-2 text-sm leading-relaxed text-ink-subtle">
+        Groq AI will suggest ways to reduce your EMI — pre-payment, longer tenure, or balance transfer.
+      </p>
+    </div>
+  </article>
+</section>
+
+<!-- Empty state (shown before the first calculation) -->
+<div
+  id="emi-empty"
+  class="glass-card flex flex-col items-center justify-center p-8 text-center md:p-10"
+>
+  <span class="flex h-12 w-12 items-center justify-center rounded-full bg-surface-2 text-ink-subtle">
+    <Icon name="calculator" size="24" />
+  </span>
+  <h3 class="mt-4 text-base font-semibold tracking-tight text-ink">Your EMI result appears here</h3>
+  <p class="mt-1.5 max-w-xs text-sm text-ink-subtle">
+    Fill in the loan details and click Calculate EMI to see your monthly instalment, total interest, and payment breakdown.
+  </p>
+</div>

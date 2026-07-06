@@ -1,0 +1,233 @@
+---
+import Icon from '../../components/Icon.astro';
+import Field from '../../components/Field.astro';
+
+const loanTypeOptions = [
+  { value: 'personal', label: 'Personal Loan' },
+  { value: 'home', label: 'Home Loan' },
+  { value: 'vehicle', label: 'Vehicle Loan' },
+  { value: 'education', label: 'Education Loan' },
+  { value: 'business', label: 'Business Loan' },
+];
+
+const tenureUnitOptions = [
+  { value: 'months', label: 'Months' },
+  { value: 'years', label: 'Years' },
+];
+---
+
+<form id="emi-form" class="glass-card p-6 md:p-7" novalidate>
+  <div class="flex items-center gap-2">
+    <span class="flex h-8 w-8 items-center justify-center rounded-md bg-primary/15 text-primary">
+      <Icon name="calculator" size="16" />
+    </span>
+    <h2 class="text-base font-semibold tracking-tight text-ink">EMI Details</h2>
+  </div>
+  <p class="mt-1 text-sm text-ink-subtle">
+    All calculations run locally on your device. No data leaves this page.
+  </p>
+
+  <div class="mt-6 grid grid-cols-1 gap-x-5 gap-y-4 sm:grid-cols-2">
+    <div class="sm:col-span-2">
+      <Field
+        id="loanAmount"
+        label="Loan Amount"
+        type="number"
+        inputmode="numeric"
+        placeholder="10,00,000"
+        prefix="₹"
+        min={1000}
+      />
+    </div>
+
+    <Field
+      id="annualInterestRate"
+      label="Annual Interest Rate (%)"
+      type="number"
+      inputmode="decimal"
+      placeholder="10.5"
+      step={0.1}
+      min={0.1}
+      max={50}
+    />
+
+    <Field
+      id="tenure"
+      label="Loan Tenure"
+      type="number"
+      inputmode="numeric"
+      placeholder="e.g. 20"
+      min={1}
+    />
+
+    <Field id="tenureUnit" label="Tenure Unit" options={tenureUnitOptions} />
+
+    <Field id="loanType" label="Loan Type" options={loanTypeOptions} />
+  </div>
+
+  <div class="mt-6 flex flex-col gap-3 sm:flex-row">
+    <button id="emi-submit" type="submit" class="btn-primary h-11 px-5 text-sm sm:flex-1">
+      <span id="emi-submit-idle" class="inline-flex items-center gap-2">
+        <Icon name="calculator" size="16" />
+        Calculate EMI
+      </span>
+      <span id="emi-submit-loading" class="hidden items-center gap-2">
+        <svg class="h-4 w-4 animate-spin" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+          <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+          <path class="opacity-90" fill="currentColor" d="M4 12a8 8 0 0 1 8-8V0C5.4 0 0 5.4 0 12h4z"></path>
+        </svg>
+        Calculating…
+      </span>
+    </button>
+    <button id="emi-reset" type="reset" class="btn-secondary h-11 px-5 text-sm">
+      <Icon name="rotate-ccw" size="16" />
+      Reset
+    </button>
+  </div>
+</form>
+
+<script>
+  import { calculateEmiBreakdown, formatInr } from '../../utils/emi';
+  import { validateEmiInput, type RawEmiInput, type EmiField } from '../../utils/emi-validation';
+
+  const form = document.getElementById('emi-form') as HTMLFormElement | null;
+  const result = document.getElementById('emi-result');
+  const empty = document.getElementById('emi-empty');
+  const submitBtn = document.getElementById('emi-submit') as HTMLButtonElement | null;
+  const idle = document.getElementById('emi-submit-idle');
+  const loading = document.getElementById('emi-submit-loading');
+
+  const FIELDS: EmiField[] = [
+    'loanAmount', 'annualInterestRate', 'tenure', 'tenureUnit', 'loanType',
+  ];
+
+  function getRaw(): RawEmiInput {
+    const raw: RawEmiInput = {};
+    if (!form) return raw;
+    const data = new FormData(form);
+    for (const field of FIELDS) {
+      raw[field] = (data.get(field) as string | null)?.toString() ?? '';
+    }
+    return raw;
+  }
+
+  function setFieldError(field: EmiField, message?: string) {
+    const input = document.getElementById(field);
+    const errorEl = document.getElementById(`${field}-error`);
+    if (!input || !errorEl) return;
+    if (message) {
+      input.classList.add('has-error');
+      input.setAttribute('aria-invalid', 'true');
+      errorEl.textContent = message;
+      errorEl.classList.add('is-visible');
+    } else {
+      input.classList.remove('has-error');
+      input.removeAttribute('aria-invalid');
+      errorEl.textContent = '';
+      errorEl.classList.remove('is-visible');
+    }
+  }
+
+  function clearErrors() {
+    FIELDS.forEach((f) => setFieldError(f, undefined));
+  }
+
+  function setText(id: string, value: string) {
+    const el = document.getElementById(id);
+    if (el) el.textContent = value;
+  }
+
+  function setLoading(isLoading: boolean) {
+    if (!submitBtn || !idle || !loading) return;
+    submitBtn.disabled = isLoading;
+    idle.classList.toggle('hidden', isLoading);
+    loading.classList.toggle('hidden', !isLoading);
+    loading.classList.toggle('inline-flex', isLoading);
+  }
+
+  function renderResult(input: ReturnType<typeof validateEmiInput>['value']) {
+    if (!input || !result) return;
+    const r = calculateEmiBreakdown(input);
+
+    const article = result.querySelector('article');
+    if (article) {
+      article.classList.remove('animate-reveal');
+      void (article as HTMLElement).offsetWidth;
+      article.classList.add('animate-reveal');
+    }
+
+    const successBanner = document.getElementById('emi-success-banner');
+    if (successBanner) {
+      successBanner.classList.remove('hidden');
+      successBanner.classList.add('animate-pop');
+    }
+
+    // Headline metrics.
+    setText('emi-monthly', formatInr(r.monthlyEmi));
+    setText('emi-total-interest', formatInr(r.totalInterest));
+    setText('emi-total-payment', formatInr(r.totalPayment));
+    setText('emi-principal', formatInr(r.principal));
+
+    // Loan summary cards.
+    setText('emi-summary-type', r.loanTypeLabel);
+    setText('emi-summary-rate', `${r.annualInterestRate.toFixed(2)}% p.a.`);
+    setText('emi-summary-duration', `${r.durationLabel} (${r.tenureMonths} mo)`);
+    setText('emi-summary-frequency', r.paymentFrequency);
+
+    // Payment breakdown bar + legend.
+    const principalPct = r.principalPercentage;
+    const interestPct = r.interestPercentage;
+    const principalBar = document.getElementById('emi-bar-principal');
+    const interestBar = document.getElementById('emi-bar-interest');
+    if (principalBar) principalBar.style.width = `${principalPct}%`;
+    if (interestBar) interestBar.style.width = `${interestPct}%`;
+    setText('emi-principal-pct', `${principalPct.toFixed(1)}%`);
+    setText('emi-interest-pct', `${interestPct.toFixed(1)}%`);
+    setText('emi-legend-principal', formatInr(r.principal));
+    setText('emi-legend-interest', formatInr(r.totalInterest));
+
+    empty?.classList.add('hidden');
+    result.classList.remove('hidden');
+    result.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+  }
+
+  form?.addEventListener('submit', (event) => {
+    event.preventDefault();
+    clearErrors();
+
+    const outcome = validateEmiInput(getRaw());
+    if (!outcome.valid) {
+      (Object.keys(outcome.errors) as EmiField[]).forEach((field) =>
+        setFieldError(field, outcome.errors[field])
+      );
+      document.getElementById(Object.keys(outcome.errors)[0])?.focus();
+      return;
+    }
+
+    setLoading(true);
+    // Brief processing delay for a premium feel; calculation itself is instant.
+    window.setTimeout(() => {
+      renderResult(outcome.value);
+      setLoading(false);
+    }, 650);
+  });
+
+  // Clear a field's error as the user corrects it.
+  FIELDS.forEach((field) => {
+    const input = document.getElementById(field);
+    input?.addEventListener('input', () => setFieldError(field, undefined));
+    input?.addEventListener('change', () => setFieldError(field, undefined));
+  });
+
+  form?.addEventListener('reset', () => {
+    clearErrors();
+    setLoading(false);
+    result?.classList.add('hidden');
+    empty?.classList.remove('hidden');
+    const successBanner = document.getElementById('emi-success-banner');
+    if (successBanner) {
+      successBanner.classList.add('hidden');
+      successBanner.classList.remove('animate-pop');
+    }
+  });
+</script>

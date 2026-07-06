@@ -1,0 +1,50 @@
+---
+import DashboardLayout from '../layouts/DashboardLayout.astro';
+import EmiForm from '../features/emi/EmiForm.astro';
+import EmiResult from '../features/emi/EmiResult.astro';
+import { EMI_POLICY, formatInr } from '../utils/emi';
+---
+
+<DashboardLayout
+  title="EMI Calculator — FinWise AI"
+  description="Calculate your monthly EMI, total interest, and payment breakdown instantly with local, transparent financial formulas."
+  active="EMI Calculator"
+>
+  <div class="space-y-6">
+    <!-- Header -->
+    <div>
+      <span class="eyebrow">Financial Tools</span>
+      <h1 class="mt-2 font-display text-2xl font-semibold tracking-tight text-ink md:text-3xl">
+        EMI Calculator
+      </h1>
+      <p class="mt-1.5 max-w-2xl text-sm text-ink-subtle md:text-base">
+        Enter your loan details to compute your monthly instalment, total interest, and full payment breakdown —
+        all calculated locally with the standard reducing-balance EMI formula.
+      </p>
+    </div>
+
+    <!-- Policy summary chips -->
+    <div class="flex flex-wrap gap-2">
+      <span class="inline-flex items-center gap-1.5 rounded-full border border-hairline bg-surface-1 px-3 py-1 text-xs text-ink-subtle">
+        Min amount {formatInr(EMI_POLICY.minAmount)}
+      </span>
+      <span class="inline-flex items-center gap-1.5 rounded-full border border-hairline bg-surface-1 px-3 py-1 text-xs text-ink-subtle">
+        Max rate {EMI_POLICY.maxRate}%
+      </span>
+      <span class="inline-flex items-center gap-1.5 rounded-full border border-hairline bg-surface-1 px-3 py-1 text-xs text-ink-subtle">
+        Max tenure {EMI_POLICY.maxTenureYears} yrs
+      </span>
+      <span class="inline-flex items-center gap-1.5 rounded-full border border-hairline bg-surface-1 px-3 py-1 text-xs text-ink-subtle">
+        Reducing-balance EMI
+      </span>
+    </div>
+
+    <!-- Form + result -->
+    <div class="grid grid-cols-1 gap-6 lg:grid-cols-2">
+      <EmiForm />
+      <div class="lg:sticky lg:top-20 lg:self-start">
+        <EmiResult />
+      </div>
+    </div>
+  </div>
+</DashboardLayout>

@@ -9,9 +9,9 @@ interface Option {
 interface Props {
   id: string;
   label: string;
-  type?: string;
+  type?: any;
   placeholder?: string;
-  inputmode?: string;
+  inputmode?: 'url' | 'text' | 'none' | 'search' | 'email' | 'tel' | 'numeric' | 'decimal';
   min?: number;
   max?: number;
   step?: number;
@@ -40,7 +40,7 @@ const {
 
   {options ? (
     <select id={id} name={id} class="field-control" aria-describedby={`${id}-error`}>
-      <option value="" disabled selected>Select {label.toLowerCase()}</option>
+      <option value="">Select {label.toLowerCase()}</option>
       {options.map((opt) => (
         <option value={opt.value}>{opt.label}</option>
       ))}
