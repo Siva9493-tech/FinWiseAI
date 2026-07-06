@@ -1,0 +1,38 @@
+---
+import Icon from '../../components/Icon.astro';
+
+// History (Current Session) — a list of question/answer turns from THIS page
+// visit only. Held in memory by the client script and cleared on "Clear chat"
+// or page reload. Each rendered item can be re-opened into the AI Response.
+---
+
+<section aria-label="Session history" class="glass-card p-5 md:p-6">
+  <div class="flex items-center justify-between gap-3">
+    <div class="flex items-center gap-2">
+      <span class="flex h-8 w-8 items-center justify-center rounded-md bg-primary/15 text-primary">
+        <Icon name="history" size="16" />
+      </span>
+      <h2 class="text-base font-semibold tracking-tight text-ink">History</h2>
+      <span class="rounded-full bg-surface-2 px-2 py-0.5 text-[11px] font-medium text-ink-subtle">
+        Current Session
+      </span>
+    </div>
+    <button id="history-clear" type="button" class="btn-tertiary hidden h-8 px-2.5 text-xs" aria-label="Clear chat history">
+      <Icon name="trash-2" size="14" />
+      Clear chat
+    </button>
+  </div>
+
+  <!-- Empty state -->
+  <div id="history-empty" class="mt-4 flex items-center gap-2.5 rounded-lg border border-dashed border-hairline-strong bg-surface-1/40 p-4">
+    <span class="flex h-7 w-7 items-center justify-center rounded-md bg-surface-2 text-ink-subtle">
+      <Icon name="clock" size="14" />
+    </span>
+    <p class="text-sm text-ink-subtle">
+      Your questions from this session will appear here.
+    </p>
+  </div>
+
+  <!-- History list (populated client-side) -->
+  <ul id="history-list" class="mt-4 hidden space-y-2"></ul>
+</section>

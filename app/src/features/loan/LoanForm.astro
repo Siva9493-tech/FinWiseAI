@@ -118,6 +118,7 @@ const purposeOptions = [
 <script>
   import { evaluateEligibility, formatInr } from '../../utils/loan';
   import { validateApplication, type RawLoanInput, type LoanField } from '../../utils/loan-validation';
+  import { saveLoanResult } from '../../utils/result-store';
 
   const form = document.getElementById('loan-form') as HTMLFormElement | null;
   const result = document.getElementById('loan-result');
@@ -195,6 +196,9 @@ const purposeOptions = [
   function renderResult(app: ReturnType<typeof validateApplication>['value']) {
     if (!app || !result) return;
     const r = evaluateEligibility(app);
+
+    // Persist for the AI Advisor (Financial Summary + AI context).
+    saveLoanResult(r);
 
     const article = result.querySelector('article');
     if (article) {

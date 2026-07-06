@@ -101,6 +101,7 @@ import Field from '../../components/Field.astro';
 <script>
   import { analyzeCredit } from '../../utils/credit';
   import { validateCreditProfile, type RawCreditInput, type CreditField } from '../../utils/credit-validation';
+  import { saveCreditResult } from '../../utils/result-store';
 
   const form = document.getElementById('credit-form') as HTMLFormElement | null;
   const result = document.getElementById('credit-result');
@@ -177,6 +178,9 @@ import Field from '../../components/Field.astro';
   function renderResult(profile: NonNullable<ReturnType<typeof validateCreditProfile>['value']>) {
     if (!result) return;
     const a = analyzeCredit(profile);
+
+    // Persist for the AI Advisor (Financial Summary + AI context).
+    saveCreditResult(a);
 
     const article = result.querySelector('article');
     if (article) {

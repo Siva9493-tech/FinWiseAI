@@ -1,0 +1,72 @@
+---
+import Icon from '../../components/Icon.astro';
+import { SUGGESTED_QUESTIONS } from '../../utils/advisor-questions';
+
+// Ask AI — the question input plus the Suggested Questions chips.
+// Submitting (or clicking a chip) is handled by the page client script, which
+// calls the /api/advice endpoint and streams the answer into AiResponse.
+---
+
+<section aria-label="Ask the AI advisor" class="glass-card p-5 md:p-6">
+  <div class="flex items-center gap-2">
+    <span class="flex h-8 w-8 items-center justify-center rounded-md bg-primary/15 text-primary">
+      <Icon name="sparkles" size="16" />
+    </span>
+    <h2 class="text-base font-semibold tracking-tight text-ink">Ask AI</h2>
+  </div>
+
+  <form id="advisor-form" class="mt-4" novalidate>
+    <label for="advisor-question" class="sr-only">Your financial question</label>
+    <div class="relative">
+      <textarea
+        id="advisor-question"
+        name="question"
+        rows="3"
+        maxlength="500"
+        placeholder="Ask anything about your loan, credit score, EMI, or overall financial health…"
+        class="field-control h-auto resize-none py-3 pr-12"
+        aria-describedby="advisor-question-error"
+      ></textarea>
+      <button
+        id="advisor-submit"
+        type="submit"
+        class="btn-primary absolute bottom-3 right-3 h-9 w-9 !p-0"
+        aria-label="Send question"
+      >
+        <span id="advisor-submit-idle" class="inline-flex">
+          <Icon name="send" size="16" />
+        </span>
+        <span id="advisor-submit-loading" class="hidden">
+          <svg class="h-4 w-4 animate-spin" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+            <path class="opacity-90" fill="currentColor" d="M4 12a8 8 0 0 1 8-8V0C5.4 0 0 5.4 0 12h4z"></path>
+          </svg>
+        </span>
+      </button>
+    </div>
+    <div class="mt-1.5 flex items-center justify-between">
+      <p id="advisor-question-error" class="field-error" role="alert" aria-live="polite"></p>
+      <span id="advisor-charcount" class="ml-auto text-[11px] text-ink-tertiary">0 / 500</span>
+    </div>
+  </form>
+
+  <!-- Suggested Questions -->
+  <div class="mt-4">
+    <p class="text-[11px] font-semibold uppercase tracking-wider text-ink-tertiary">
+      Suggested Questions
+    </p>
+    <div class="mt-2.5 flex flex-wrap gap-2" role="list">
+      {SUGGESTED_QUESTIONS.map((q) => (
+        <button
+          type="button"
+          class="suggested-chip"
+          data-question={q.text}
+          role="listitem"
+        >
+          <Icon name={q.icon} size="14" />
+          <span>{q.text}</span>
+        </button>
+      ))}
+    </div>
+  </div>
+</section>

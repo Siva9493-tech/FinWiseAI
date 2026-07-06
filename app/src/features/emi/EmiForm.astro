@@ -89,6 +89,7 @@ const tenureUnitOptions = [
 <script>
   import { calculateEmiBreakdown, formatInr } from '../../utils/emi';
   import { validateEmiInput, type RawEmiInput, type EmiField } from '../../utils/emi-validation';
+  import { saveEmiResult } from '../../utils/result-store';
 
   const form = document.getElementById('emi-form') as HTMLFormElement | null;
   const result = document.getElementById('emi-result');
@@ -148,6 +149,9 @@ const tenureUnitOptions = [
   function renderResult(input: ReturnType<typeof validateEmiInput>['value']) {
     if (!input || !result) return;
     const r = calculateEmiBreakdown(input);
+
+    // Persist for the AI Advisor (Financial Summary + AI context).
+    saveEmiResult(r);
 
     const article = result.querySelector('article');
     if (article) {

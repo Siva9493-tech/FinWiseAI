@@ -1,0 +1,361 @@
+---
+import DashboardLayout from '../layouts/DashboardLayout.astro';
+import FinancialSummary from '../features/advisor/FinancialSummary.astro';
+import AskAi from '../features/advisor/AskAi.astro';
+import AiResponse from '../features/advisor/AiResponse.astro';
+import SessionHistory from '../features/advisor/SessionHistory.astro';
+import { providerName } from '../services/ai';
+---
+
+<DashboardLayout
+  title="AI Financial Advisor — FinWise AI"
+  description="Get personalized financial advice, risks, suggestions, and an action plan from FinWise AI — powered by your own loan, credit, and EMI results."
+  active="AI Advisor"
+>
+  <div class="space-y-6">
+    <!-- Header -->
+    <div>
+      <span class="eyebrow">Generative AI</span>
+      <h1 class="mt-2 font-display text-2xl font-semibold tracking-tight text-ink md:text-3xl">
+        AI Financial Advisor
+      </h1>
+      <p class="mt-1.5 max-w-2xl text-sm text-ink-subtle md:text-base">
+        Ask a question and get tailored advice grounded in your own results. The
+        AI reasons over your loan eligibility, credit score, and EMI — your
+        numbers are always calculated locally, never by the AI.
+      </p>
+    </div>
+
+    <!-- Financial Summary -->
+    <FinancialSummary />
+
+    <!-- Ask + Response grid -->
+    <div class="grid grid-cols-1 gap-6 lg:grid-cols-2">
+      <div class="space-y-6">
+        <AskAi />
+        <SessionHistory />
+      </div>
+      <div class="lg:sticky lg:top-20 lg:self-start">
+        <AiResponse />
+      </div>
+    </div>
+
+    <!-- Provider footnote -->
+    <p class="flex items-center justify-center gap-1.5 pt-1 text-[11px] text-ink-tertiary">
+      Powered by {providerName} · Model llama-3.3-70b-versatile · Your API key stays on the server
+    </p>
+  </div>
+</DashboardLayout>
+
+<script>
+  import { loadFinancialContext } from '../utils/result-store';
+  import { renderMarkdown } from '../utils/markdown';
+  import { formatInr } from '../utils/loan';
+  import type { FinancialContext, AdviceTurn } from '../types/advisor';
+
+  // ---- Element handles ------------------------------------------------------
+  const form = document.getElementById('advisor-form') as HTMLFormElement | null;
+  const textarea = document.getElementById('advisor-question') as HTMLTextAreaElement | null;
+  const charcount = document.getElementById('advisor-charcount');
+  const questionError = document.getElementById('advisor-question-error');
+  const submitBtn = document.getElementById('advisor-submit') as HTMLButtonElement | null;
+  const submitIdle = document.getElementById('advisor-submit-idle');
+  const submitLoading = document.getElementById('advisor-submit-loading');
+
+  const empty = document.getElementById('response-empty');
+  const loading = document.getElementById('response-loading');
+  const content = document.getElementById('response-content');
+  const actions = document.getElementById('response-actions');
+  const markdownEl = document.getElementById('response-markdown');
+  const questionEcho = document.getElementById('response-question');
+  const copyBtn = document.getElementById('response-copy') as HTMLButtonElement | null;
+  const copyLabel = document.getElementById('response-copy-label');
+  const regenerateBtn = document.getElementById('response-regenerate') as HTMLButtonElement | null;
+
+  const historyEmpty = document.getElementById('history-empty');
+  const historyList = document.getElementById('history-list');
+  const historyClear = document.getElementById('history-clear');
+
+  // ---- Session state --------------------------------------------------------
+  const history: AdviceTurn[] = [];
+  let lastQuestion = '';
+  let rawAnswer = '';
+  let inFlight: AbortController | null = null;
+  let idCounter = 0;
+
+  // ---- Financial Summary ----------------------------------------------------
+  function refreshSummary(): FinancialContext {
+    const ctx = loadFinancialContext();
+    let present = 0;
+
+    if (ctx.loan) {
+      present++;
+      setCard('summary-loan', ctx.loan.statusLabel,
+        `${ctx.loan.riskLabel} · up to ${formatInr(ctx.loan.eligibleAmount)}`);
+    }
+    if (ctx.credit) {
+      present++;
+      setCard('summary-credit', `${ctx.credit.score} · ${ctx.credit.rating}`,
+        `Health ${ctx.credit.financialHealth}/100`);
+    }
+    if (ctx.emi) {
+      present++;
+      setCard('summary-emi', `${formatInr(ctx.emi.monthlyEmi)}/mo`,
+        `${ctx.emi.loanTypeLabel} · ${ctx.emi.tenureMonths} mo`);
+    }
+
+    const statusText = document.getElementById('summary-status-text');
+    const hint = document.getElementById('summary-empty-hint');
+    if (statusText) {
+      statusText.textContent = present === 0
+        ? 'No data yet'
+        : `${present} of 3 tools completed`;
+    }
+    hint?.classList.toggle('hidden', present === 3);
+
+    return ctx;
+  }
+
+  function setCard(cardId: string, status: string, detail: string) {
+    const card = document.getElementById(cardId);
+    card?.classList.remove('opacity-60');
+    const statusEl = document.getElementById(`${cardId}-status`);
+    const detailEl = document.getElementById(`${cardId}-detail`);
+    if (statusEl) statusEl.textContent = status;
+    if (detailEl) detailEl.textContent = detail;
+  }
+
+  // ---- UI state helpers -----------------------------------------------------
+  function setSubmitting(isSubmitting: boolean) {
+    if (submitBtn) submitBtn.disabled = isSubmitting;
+    submitIdle?.classList.toggle('hidden', isSubmitting);
+    submitLoading?.classList.toggle('hidden', !isSubmitting);
+    if (regenerateBtn) regenerateBtn.disabled = isSubmitting;
+  }
+
+  function showState(state: 'empty' | 'loading' | 'content') {
+    empty?.classList.toggle('hidden', state !== 'empty');
+    loading?.classList.toggle('hidden', state !== 'loading');
+    content?.classList.toggle('hidden', state !== 'content');
+    actions?.classList.toggle('hidden', state !== 'content');
+    actions?.classList.toggle('flex', state === 'content');
+  }
+
+  function setQuestionError(message?: string) {
+    if (!textarea || !questionError) return;
+    if (message) {
+      textarea.classList.add('has-error');
+      textarea.setAttribute('aria-invalid', 'true');
+      questionError.textContent = message;
+      questionError.classList.add('is-visible');
+    } else {
+      textarea.classList.remove('has-error');
+      textarea.removeAttribute('aria-invalid');
+      questionError.textContent = '';
+      questionError.classList.remove('is-visible');
+    }
+  }
+
+  // ---- Core: ask the advisor ------------------------------------------------
+  async function ask(question: string) {
+    const trimmed = question.trim();
+    if (!trimmed) {
+      setQuestionError('Please enter a question first.');
+      textarea?.focus();
+      return;
+    }
+    setQuestionError(undefined);
+
+    // Cancel any in-flight request before starting a new one.
+    inFlight?.abort();
+    inFlight = new AbortController();
+
+    lastQuestion = trimmed;
+    rawAnswer = '';
+    const context = refreshSummary();
+
+    if (questionEcho) questionEcho.textContent = trimmed;
+    if (markdownEl) markdownEl.innerHTML = '';
+    setSubmitting(true);
+    showState('loading');
+
+    try {
+      const response = await fetch('/api/advice', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ question: trimmed, context }),
+        signal: inFlight.signal,
+      });
+
+      if (!response.ok || !response.body) {
+        let message = 'The AI advisor is temporarily unavailable. Please try again.';
+        try {
+          const data = await response.json();
+          if (data?.error) message = data.error;
+        } catch { /* keep default */ }
+        throw new Error(message);
+      }
+
+      // Stream and progressively render the Markdown.
+      const reader = response.body.getReader();
+      const decoder = new TextDecoder();
+      let firstChunk = true;
+
+      while (true) {
+        const { done, value } = await reader.read();
+        if (done) break;
+        rawAnswer += decoder.decode(value, { stream: true });
+        if (firstChunk) {
+          showState('content');
+          firstChunk = false;
+        }
+        if (markdownEl) markdownEl.innerHTML = renderMarkdown(rawAnswer);
+      }
+
+      // Guard: empty stream.
+      if (!rawAnswer.trim()) {
+        throw new Error('The AI returned an empty response. Please try again.');
+      }
+
+      showState('content');
+      if (markdownEl) markdownEl.innerHTML = renderMarkdown(rawAnswer);
+      addToHistory(trimmed, rawAnswer);
+    } catch (err) {
+      if ((err as Error).name === 'AbortError') return; // superseded by a newer request
+      showState('content');
+      if (markdownEl) {
+        markdownEl.innerHTML = renderMarkdown(
+          `## Something went wrong\n\n> ${(err as Error).message}`
+        );
+      }
+    } finally {
+      setSubmitting(false);
+      inFlight = null;
+    }
+  }
+
+  // ---- History (current session) -------------------------------------------
+  function addToHistory(question: string, answer: string) {
+    const turn: AdviceTurn = {
+      id: `turn-${++idCounter}`,
+      question,
+      answer,
+      createdAt: Date.now(),
+    };
+    history.unshift(turn);
+    renderHistory();
+  }
+
+  function renderHistory() {
+    if (!historyList) return;
+    const hasItems = history.length > 0;
+    historyEmpty?.classList.toggle('hidden', hasItems);
+    historyList.classList.toggle('hidden', !hasItems);
+    historyClear?.classList.toggle('hidden', !hasItems);
+
+    historyList.innerHTML = '';
+    for (const turn of history) {
+      const li = document.createElement('li');
+      const btn = document.createElement('button');
+      btn.type = 'button';
+      btn.className = 'history-item';
+      btn.dataset.id = turn.id;
+      btn.innerHTML = `
+        <span class="history-item-icon" aria-hidden="true">
+          <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 17a2 2 0 0 1-2 2H6l-4 4V4a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2z"/></svg>
+        </span>
+        <span class="min-w-0 flex-1 truncate text-left">${escapeText(turn.question)}</span>
+        <span class="history-item-time">${formatTime(turn.createdAt)}</span>`;
+      btn.addEventListener('click', () => reopen(turn));
+      li.appendChild(btn);
+      historyList.appendChild(li);
+    }
+  }
+
+  function reopen(turn: AdviceTurn) {
+    lastQuestion = turn.question;
+    rawAnswer = turn.answer;
+    if (questionEcho) questionEcho.textContent = turn.question;
+    if (markdownEl) markdownEl.innerHTML = renderMarkdown(turn.answer);
+    showState('content');
+    content?.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+  }
+
+  function escapeText(text: string): string {
+    const div = document.createElement('div');
+    div.textContent = text;
+    return div.innerHTML;
+  }
+
+  function formatTime(ms: number): string {
+    return new Date(ms).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+  }
+
+  // ---- Wiring ---------------------------------------------------------------
+  textarea?.addEventListener('input', () => {
+    const len = textarea.value.length;
+    if (charcount) charcount.textContent = `${len} / 500`;
+    if (textarea.classList.contains('has-error')) setQuestionError(undefined);
+  });
+
+  // Submit on Enter (Shift+Enter for newline).
+  textarea?.addEventListener('keydown', (event) => {
+    if (event.key === 'Enter' && !event.shiftKey) {
+      event.preventDefault();
+      form?.requestSubmit();
+    }
+  });
+
+  form?.addEventListener('submit', (event) => {
+    event.preventDefault();
+    if (textarea) ask(textarea.value);
+  });
+
+  // Suggested question chips.
+  document.querySelectorAll<HTMLButtonElement>('.suggested-chip').forEach((chip) => {
+    chip.addEventListener('click', () => {
+      const q = chip.dataset.question ?? '';
+      if (textarea) {
+        textarea.value = q;
+        textarea.dispatchEvent(new Event('input'));
+      }
+      ask(q);
+    });
+  });
+
+  // Copy response.
+  copyBtn?.addEventListener('click', async () => {
+    if (!rawAnswer) return;
+    try {
+      await navigator.clipboard.writeText(rawAnswer);
+      if (copyLabel) {
+        copyLabel.textContent = 'Copied';
+        window.setTimeout(() => { copyLabel.textContent = 'Copy'; }, 1600);
+      }
+    } catch {
+      if (copyLabel) copyLabel.textContent = 'Press Ctrl+C';
+    }
+  });
+
+  // Regenerate the last question.
+  regenerateBtn?.addEventListener('click', () => {
+    if (lastQuestion) ask(lastQuestion);
+  });
+
+  // Clear chat (current session).
+  historyClear?.addEventListener('click', () => {
+    history.length = 0;
+    renderHistory();
+    rawAnswer = '';
+    lastQuestion = '';
+    showState('empty');
+    if (textarea) {
+      textarea.value = '';
+      textarea.dispatchEvent(new Event('input'));
+    }
+  });
+
+  // ---- Init -----------------------------------------------------------------
+  refreshSummary();
+  renderHistory();
+</script>

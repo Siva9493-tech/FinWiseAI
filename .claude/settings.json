@@ -1,7 +1,14 @@
 {
   "permissions": {
     "allow": [
-      "Bash(npx tsc *)"
+      "Bash(npx tsc *)",
+      "Read(//Users/dev/workspace-a9f9900e/**)",
+      "Read(//c/Users/dev/workspace-a9f9900e/**)",
+      "Read(//Users/dev/workspace-a9f9900e/.ai/**)",
+      "Read(//c/Users/dev/workspace-a9f9900e/.ai/**)",
+      "Bash(timeout 120 npm install @astrojs/vercel --no-audit --no-fund)",
+      "Bash(echo \"EXIT:$?\")",
+      "Bash(node -e \"console.log\\('vercel adapter', require\\('./node_modules/@astrojs/vercel/package.json'\\).version\\)\")"
     ]
   }
 }

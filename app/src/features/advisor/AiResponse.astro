@@ -1,0 +1,79 @@
+---
+import Icon from '../../components/Icon.astro';
+
+// AI Response — three visual states toggled by the page client script:
+//   #response-empty    before the first question
+//   #response-loading  while awaiting/streaming the answer
+//   #response-content  the rendered Markdown answer + actions
+---
+
+<section aria-label="AI response" aria-live="polite" class="glass-card p-5 md:p-6">
+  <div class="flex items-center justify-between gap-3">
+    <div class="flex items-center gap-2">
+      <span class="flex h-8 w-8 items-center justify-center rounded-md bg-primary/15 text-primary">
+        <Icon name="brain" size="16" />
+      </span>
+      <h2 class="text-base font-semibold tracking-tight text-ink">AI Response</h2>
+    </div>
+    <!-- Action buttons (hidden until there is a response) -->
+    <div id="response-actions" class="hidden items-center gap-1.5">
+      <button id="response-copy" type="button" class="btn-secondary h-8 px-2.5 text-xs" aria-label="Copy response">
+        <Icon name="copy" size="14" />
+        <span id="response-copy-label">Copy</span>
+      </button>
+      <button id="response-regenerate" type="button" class="btn-secondary h-8 px-2.5 text-xs" aria-label="Regenerate response">
+        <Icon name="refresh-cw" size="14" />
+        Regenerate
+      </button>
+    </div>
+  </div>
+
+  <!-- Empty state -->
+  <div id="response-empty" class="mt-5 flex flex-col items-center justify-center py-8 text-center">
+    <span class="flex h-12 w-12 items-center justify-center rounded-full bg-surface-2 text-ink-subtle">
+      <Icon name="message-square" size="24" />
+    </span>
+    <h3 class="mt-4 text-base font-semibold tracking-tight text-ink">Your AI advice appears here</h3>
+    <p class="mt-1.5 max-w-sm text-sm text-ink-subtle">
+      Ask a question above or pick a suggested one. The advisor reads your latest
+      results and replies with advice, risks, suggestions, and an action plan.
+    </p>
+  </div>
+
+  <!-- Loading state -->
+  <div id="response-loading" class="mt-5 hidden">
+    <div class="flex items-center gap-3">
+      <span class="flex h-9 w-9 items-center justify-center rounded-full bg-primary/15 text-primary">
+        <Icon name="sparkles" size="18" />
+      </span>
+      <div class="flex items-center gap-1.5">
+        <span class="typing-dot"></span>
+        <span class="typing-dot" style="animation-delay:0.15s"></span>
+        <span class="typing-dot" style="animation-delay:0.3s"></span>
+      </div>
+      <p class="text-sm text-ink-subtle">FinWise AI is thinking…</p>
+    </div>
+    <!-- Skeleton shimmer while the first tokens arrive -->
+    <div class="mt-5 space-y-2.5">
+      <div class="skeleton-line h-3 w-1/3"></div>
+      <div class="skeleton-line h-3 w-full"></div>
+      <div class="skeleton-line h-3 w-11/12"></div>
+      <div class="skeleton-line h-3 w-2/3"></div>
+    </div>
+  </div>
+
+  <!-- Content state: the current question echoed + streamed Markdown -->
+  <div id="response-content" class="mt-5 hidden">
+    <div class="mb-4 flex items-start gap-2.5 rounded-lg border border-hairline bg-surface-1/60 p-3">
+      <span class="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-surface-2 text-ink-muted">
+        <Icon name="user" size="13" />
+      </span>
+      <p id="response-question" class="text-sm text-ink-muted"></p>
+    </div>
+    <article id="response-markdown" class="advisor-prose animate-reveal"></article>
+    <p class="mt-4 flex items-center gap-1.5 text-[11px] text-ink-tertiary">
+      <Icon name="info" size="12" />
+      AI-generated guidance. Not a substitute for a certified financial advisor.
+    </p>
+  </div>
+</section>

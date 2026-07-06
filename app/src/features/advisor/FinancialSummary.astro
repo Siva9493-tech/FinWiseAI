@@ -1,0 +1,85 @@
+---
+import Icon from '../../components/Icon.astro';
+
+// Financial Summary — shows the user's latest deterministic results (loan,
+// credit, EMI) pulled from localStorage by the client script. Values are the
+// SAME numbers computed on each tool page; the AI never recomputes them.
+// Every metric slot starts as "—" and is filled client-side.
+---
+
+<section aria-label="Financial summary" class="glass-card p-5 md:p-6">
+  <div class="flex items-center justify-between gap-3">
+    <div class="flex items-center gap-2">
+      <span class="flex h-8 w-8 items-center justify-center rounded-md bg-primary/15 text-primary">
+        <Icon name="gauge" size="16" />
+      </span>
+      <h2 class="text-base font-semibold tracking-tight text-ink">Financial Summary</h2>
+    </div>
+    <span
+      id="summary-status"
+      class="inline-flex items-center gap-1.5 rounded-full border border-hairline bg-surface-1 px-2.5 py-1 text-[11px] font-medium text-ink-subtle"
+    >
+      <Icon name="info" size="12" />
+      <span id="summary-status-text">No data yet</span>
+    </span>
+  </div>
+
+  <p class="mt-1.5 text-sm text-ink-subtle">
+    Your latest results power the AI's advice. Run the tools to personalize it.
+  </p>
+
+  <div class="mt-5 grid grid-cols-1 gap-3 sm:grid-cols-3">
+    <!-- Loan -->
+    <div
+      id="summary-loan"
+      class="rounded-lg border border-hairline bg-surface-1/60 p-4 opacity-60 transition-opacity"
+    >
+      <div class="flex items-center gap-2">
+        <Icon name="landmark" size="16" class="text-ink-subtle" />
+        <p class="text-xs font-medium text-ink-subtle">Loan Eligibility</p>
+      </div>
+      <p id="summary-loan-status" class="mt-2 text-sm font-semibold tracking-tight text-ink">
+        &mdash;
+      </p>
+      <p id="summary-loan-detail" class="mt-0.5 text-xs text-ink-tertiary">Not calculated</p>
+    </div>
+
+    <!-- Credit -->
+    <div
+      id="summary-credit"
+      class="rounded-lg border border-hairline bg-surface-1/60 p-4 opacity-60 transition-opacity"
+    >
+      <div class="flex items-center gap-2">
+        <Icon name="credit-card" size="16" class="text-ink-subtle" />
+        <p class="text-xs font-medium text-ink-subtle">Credit Score</p>
+      </div>
+      <p id="summary-credit-status" class="mt-2 text-sm font-semibold tracking-tight text-ink">
+        &mdash;
+      </p>
+      <p id="summary-credit-detail" class="mt-0.5 text-xs text-ink-tertiary">Not calculated</p>
+    </div>
+
+    <!-- EMI -->
+    <div
+      id="summary-emi"
+      class="rounded-lg border border-hairline bg-surface-1/60 p-4 opacity-60 transition-opacity"
+    >
+      <div class="flex items-center gap-2">
+        <Icon name="calculator" size="16" class="text-ink-subtle" />
+        <p class="text-xs font-medium text-ink-subtle">Monthly EMI</p>
+      </div>
+      <p id="summary-emi-status" class="mt-2 text-sm font-semibold tracking-tight text-ink">
+        &mdash;
+      </p>
+      <p id="summary-emi-detail" class="mt-0.5 text-xs text-ink-tertiary">Not calculated</p>
+    </div>
+  </div>
+
+  <!-- Prompt to run tools when nothing is stored -->
+  <div id="summary-empty-hint" class="mt-4 flex flex-wrap items-center gap-2 text-xs text-ink-subtle">
+    <span>Get tailored advice:</span>
+    <a href="/loan-eligibility" class="btn-tertiary h-7 px-2.5 text-xs">Loan</a>
+    <a href="/credit-score" class="btn-tertiary h-7 px-2.5 text-xs">Credit</a>
+    <a href="/emi-calculator" class="btn-tertiary h-7 px-2.5 text-xs">EMI</a>
+  </div>
+</section>
