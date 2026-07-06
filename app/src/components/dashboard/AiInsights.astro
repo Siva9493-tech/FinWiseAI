@@ -1,0 +1,45 @@
+---
+import Icon from '../Icon.astro';
+
+// Placeholder insights — the AI Financial Advisor module will generate these.
+const insights: string[] = [
+  'Reduce credit utilization by 12% to unlock lower interest rates.',
+  'You qualify for a home loan up to ₹42,00,000 at current income.',
+  'Consolidating two loans could save ~₹2,300 per month.',
+];
+---
+
+<section
+  class="card-static top-edge-highlight relative flex h-full flex-col overflow-hidden p-5"
+  aria-labelledby="ai-insights-title"
+>
+  <div class="absolute -right-16 -top-16 h-40 w-40 rounded-full bg-primary/10 blur-3xl"></div>
+
+  <div class="relative flex items-center gap-2">
+    <span class="flex h-8 w-8 items-center justify-center rounded-md bg-primary/15 text-primary">
+      <Icon name="sparkles" size="16" />
+    </span>
+    <h2 id="ai-insights-title" class="text-base font-semibold tracking-tight text-ink">
+      AI Insights
+    </h2>
+    <span class="ml-auto rounded-full bg-surface-2 px-2 py-0.5 text-[11px] font-medium text-ink-subtle">
+      Preview
+    </span>
+  </div>
+
+  <ul class="relative mt-4 flex-1 space-y-3">
+    {insights.map((insight) => (
+      <li class="flex gap-2.5 text-sm text-ink-muted">
+        <span class="mt-0.5 shrink-0 text-primary">
+          <Icon name="check" size="15" />
+        </span>
+        <span class="leading-relaxed">{insight}</span>
+      </li>
+    ))}
+  </ul>
+
+  <a href="#" class="btn-secondary relative mt-5 w-full justify-center">
+    <Icon name="brain" size="16" />
+    Open AI Advisor
+  </a>
+</section>

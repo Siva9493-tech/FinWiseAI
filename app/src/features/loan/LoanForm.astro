@@ -1,0 +1,267 @@
+---
+import Icon from '../../components/Icon.astro';
+import Field from '../../components/Field.astro';
+
+const employmentOptions = [
+  { value: 'salaried', label: 'Salaried' },
+  { value: 'self-employed', label: 'Self-Employed' },
+  { value: 'business', label: 'Business Owner' },
+  { value: 'freelancer', label: 'Freelancer' },
+];
+
+const purposeOptions = [
+  { value: 'home', label: 'Home Loan' },
+  { value: 'personal', label: 'Personal Loan' },
+  { value: 'vehicle', label: 'Vehicle Loan' },
+  { value: 'education', label: 'Education Loan' },
+  { value: 'business', label: 'Business Loan' },
+];
+---
+
+<form id="loan-form" class="glass-card p-6 md:p-7" novalidate>
+  <div class="flex items-center gap-2">
+    <span class="flex h-8 w-8 items-center justify-center rounded-md bg-primary/15 text-primary">
+      <Icon name="landmark" size="16" />
+    </span>
+    <h2 class="text-base font-semibold tracking-tight text-ink">Loan Application</h2>
+  </div>
+  <p class="mt-1 text-sm text-ink-subtle">
+    All calculations run locally on your device. No data leaves this page.
+  </p>
+
+  <div class="mt-6 grid grid-cols-1 gap-x-5 gap-y-4 sm:grid-cols-2">
+    <div class="sm:col-span-2">
+      <Field id="fullName" label="Full Name" type="text" placeholder="e.g. Siva Balaji" />
+    </div>
+
+    <Field id="age" label="Age" type="number" inputmode="numeric" placeholder="21–60" min={18} max={100} />
+
+    <Field id="employmentType" label="Employment Type" options={employmentOptions} />
+
+    <Field
+      id="monthlyIncome"
+      label="Monthly Income"
+      type="number"
+      inputmode="numeric"
+      placeholder="50,000"
+      prefix="₹"
+      min={0}
+    />
+
+    <Field
+      id="existingEmi"
+      label="Existing Monthly EMI"
+      type="number"
+      inputmode="numeric"
+      placeholder="0"
+      prefix="₹"
+      min={0}
+      hint="Enter 0 if none"
+    />
+
+    <Field
+      id="creditScore"
+      label="Credit Score"
+      type="number"
+      inputmode="numeric"
+      placeholder="300–900"
+      min={300}
+      max={900}
+    />
+
+    <Field
+      id="loanAmount"
+      label="Loan Amount"
+      type="number"
+      inputmode="numeric"
+      placeholder="8,00,000"
+      prefix="₹"
+      min={0}
+    />
+
+    <Field
+      id="loanTenureMonths"
+      label="Loan Tenure (months)"
+      type="number"
+      inputmode="numeric"
+      placeholder="60"
+      min={6}
+      max={360}
+    />
+
+    <div class="sm:col-span-2">
+      <Field id="loanPurpose" label="Loan Purpose" options={purposeOptions} />
+    </div>
+  </div>
+
+  <div class="mt-6 flex flex-col gap-3 sm:flex-row">
+    <button id="loan-submit" type="submit" class="btn-primary h-11 px-5 text-sm sm:flex-1">
+      <span id="submit-idle" class="inline-flex items-center gap-2">
+        <Icon name="gauge" size="16" />
+        Check Eligibility
+      </span>
+      <span id="submit-loading" class="hidden items-center gap-2">
+        <svg class="h-4 w-4 animate-spin" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+          <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+          <path class="opacity-90" fill="currentColor" d="M4 12a8 8 0 0 1 8-8V0C5.4 0 0 5.4 0 12h4z"></path>
+        </svg>
+        Checking…
+      </span>
+    </button>
+    <button id="loan-reset" type="reset" class="btn-secondary h-11 px-5 text-sm">
+      <Icon name="rotate-ccw" size="16" />
+      Reset Form
+    </button>
+  </div>
+</form>
+
+<script>
+  import { evaluateEligibility, formatInr } from '../../utils/loan';
+  import { validateApplication, type RawLoanInput, type LoanField } from '../../utils/loan-validation';
+
+  const form = document.getElementById('loan-form') as HTMLFormElement | null;
+  const result = document.getElementById('loan-result');
+  const empty = document.getElementById('loan-empty');
+  const submitBtn = document.getElementById('loan-submit') as HTMLButtonElement | null;
+  const idle = document.getElementById('submit-idle');
+  const loading = document.getElementById('submit-loading');
+
+  const FIELDS: LoanField[] = [
+    'fullName', 'age', 'employmentType', 'monthlyIncome', 'existingEmi',
+    'creditScore', 'loanAmount', 'loanTenureMonths', 'loanPurpose',
+  ];
+
+  const TONE_CLASSES = ['tone-green', 'tone-yellow', 'tone-red'];
+
+  const CHECK_SVG =
+    '<svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>';
+
+  function getRaw(): RawLoanInput {
+    const raw: RawLoanInput = {};
+    if (!form) return raw;
+    const data = new FormData(form);
+    for (const field of FIELDS) {
+      raw[field] = (data.get(field) as string | null)?.toString() ?? '';
+    }
+    return raw;
+  }
+
+  function setFieldError(field: LoanField, message?: string) {
+    const input = document.getElementById(field);
+    const errorEl = document.getElementById(`${field}-error`);
+    if (!input || !errorEl) return;
+    if (message) {
+      input.classList.add('has-error');
+      input.setAttribute('aria-invalid', 'true');
+      errorEl.textContent = message;
+      errorEl.classList.add('is-visible');
+    } else {
+      input.classList.remove('has-error');
+      input.removeAttribute('aria-invalid');
+      errorEl.textContent = '';
+      errorEl.classList.remove('is-visible');
+    }
+  }
+
+  function clearErrors() {
+    FIELDS.forEach((f) => setFieldError(f, undefined));
+  }
+
+  function setToneIcon(tone: 'green' | 'yellow' | 'red') {
+    const iconWrap = document.getElementById('result-icon');
+    if (!iconWrap) return;
+    const name = tone === 'green' ? 'circle-check' : tone === 'yellow' ? 'circle-alert' : 'circle-x';
+    const paths: Record<string, string> = {
+      'circle-check': '<circle cx="12" cy="12" r="10"/><path d="m9 12 2 2 4-4"/>',
+      'circle-alert': '<circle cx="12" cy="12" r="10"/><line x1="12" x2="12" y1="8" y2="12"/><line x1="12" x2="12.01" y1="16" y2="16"/>',
+      'circle-x': '<circle cx="12" cy="12" r="10"/><path d="m15 9-6 6"/><path d="m9 9 6 6"/>',
+    };
+    iconWrap.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">${paths[name]}</svg>`;
+  }
+
+  function setText(id: string, value: string) {
+    const el = document.getElementById(id);
+    if (el) el.textContent = value;
+  }
+
+  function setLoading(isLoading: boolean) {
+    if (!submitBtn || !idle || !loading) return;
+    submitBtn.disabled = isLoading;
+    idle.classList.toggle('hidden', isLoading);
+    loading.classList.toggle('hidden', !isLoading);
+    loading.classList.toggle('inline-flex', isLoading);
+  }
+
+  function renderResult(app: ReturnType<typeof validateApplication>['value']) {
+    if (!app || !result) return;
+    const r = evaluateEligibility(app);
+
+    const article = result.querySelector('article');
+    if (article) {
+      TONE_CLASSES.forEach((c) => article.classList.remove(c));
+      article.classList.add(`tone-${r.tone}`);
+      // Restart reveal animation.
+      article.classList.remove('animate-reveal');
+      void (article as HTMLElement).offsetWidth;
+      article.classList.add('animate-reveal');
+    }
+
+    setToneIcon(r.tone);
+    setText('result-status', r.statusLabel);
+    setText('result-summary', `${r.riskLabel} · DTI ${(r.debtToIncome * 100).toFixed(0)}%`);
+    setText('result-amount', r.status === 'rejected' ? '—' : formatInr(r.eligibleAmount));
+    setText('result-emi', formatInr(r.estimatedEmi));
+    setText('result-risk', r.riskLabel);
+    setText('result-rate', `${r.interestRate.toFixed(1)}%`);
+    setText('result-action', r.nextAction);
+
+    const reasonsList = document.getElementById('result-reasons');
+    if (reasonsList) {
+      reasonsList.innerHTML = r.reasons
+        .map(
+          (reason) =>
+            `<li class="flex gap-2.5 text-sm text-ink-muted"><span class="tone-fg mt-0.5 shrink-0">${CHECK_SVG}</span><span class="leading-relaxed">${reason}</span></li>`
+        )
+        .join('');
+    }
+
+    empty?.classList.add('hidden');
+    result.classList.remove('hidden');
+    result.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+  }
+
+  form?.addEventListener('submit', (event) => {
+    event.preventDefault();
+    clearErrors();
+
+    const outcome = validateApplication(getRaw());
+    if (!outcome.valid) {
+      (Object.keys(outcome.errors) as LoanField[]).forEach((field) =>
+        setFieldError(field, outcome.errors[field])
+      );
+      document.getElementById(Object.keys(outcome.errors)[0])?.focus();
+      return;
+    }
+
+    setLoading(true);
+    // Brief processing delay for a premium feel; calculation itself is instant.
+    window.setTimeout(() => {
+      renderResult(outcome.value);
+      setLoading(false);
+    }, 650);
+  });
+
+  // Clear a field's error as the user corrects it.
+  FIELDS.forEach((field) => {
+    const input = document.getElementById(field);
+    input?.addEventListener('input', () => setFieldError(field, undefined));
+    input?.addEventListener('change', () => setFieldError(field, undefined));
+  });
+
+  form?.addEventListener('reset', () => {
+    clearErrors();
+    setLoading(false);
+    result?.classList.add('hidden');
+    empty?.classList.remove('hidden');
+  });
+</script>

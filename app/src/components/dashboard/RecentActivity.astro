@@ -1,0 +1,82 @@
+---
+import Icon from '../Icon.astro';
+import type { ActivityItem } from '../../types/dashboard';
+
+// Placeholder data — replaced with real analysis history in a later module.
+const activity: ActivityItem[] = [
+  {
+    icon: 'landmark',
+    title: 'Loan eligibility check',
+    detail: 'Personal loan · ₹8,00,000 requested',
+    time: '2 hours ago',
+    status: 'success',
+  },
+  {
+    icon: 'calculator',
+    title: 'EMI calculated',
+    detail: 'Home loan · ₹18,420 / month for 240 months',
+    time: 'Yesterday',
+    status: 'info',
+  },
+  {
+    icon: 'credit-card',
+    title: 'Credit score analyzed',
+    detail: 'Score 742 · Good standing',
+    time: '3 days ago',
+    status: 'success',
+  },
+  {
+    icon: 'brain',
+    title: 'AI advisor session',
+    detail: 'Reviewed debt consolidation options',
+    time: '5 days ago',
+    status: 'pending',
+  },
+];
+
+const statusStyles: Record<ActivityItem['status'], string> = {
+  success: 'bg-success/15 text-success',
+  info: 'bg-primary/15 text-primary',
+  pending: 'bg-surface-3 text-ink-subtle',
+};
+
+const statusLabel: Record<ActivityItem['status'], string> = {
+  success: 'Completed',
+  info: 'Saved',
+  pending: 'In review',
+};
+---
+
+<section class="card-static top-edge-highlight flex h-full flex-col p-5" aria-labelledby="recent-activity-title">
+  <div class="flex items-center justify-between">
+    <h2 id="recent-activity-title" class="text-base font-semibold tracking-tight text-ink">
+      Recent Activity
+    </h2>
+    <a href="#" class="text-xs font-medium text-primary transition-colors hover:text-primary-hover">
+      View all
+    </a>
+  </div>
+
+  <ul class="mt-2 divide-y divide-hairline">
+    {activity.map((item) => (
+      <li class="flex items-center gap-3 py-3">
+        <span class="flex h-9 w-9 shrink-0 items-center justify-center rounded-md bg-surface-2 text-ink-muted">
+          <Icon name={item.icon} size="18" />
+        </span>
+        <div class="min-w-0 flex-1">
+          <p class="truncate text-sm font-medium text-ink">{item.title}</p>
+          <p class="truncate text-xs text-ink-subtle">{item.detail}</p>
+        </div>
+        <div class="flex shrink-0 flex-col items-end gap-1">
+          <span class={`rounded-full px-2 py-0.5 text-[11px] font-medium ${statusStyles[item.status]}`}>
+            {statusLabel[item.status]}
+          </span>
+          <span class="inline-flex items-center gap-1 text-[11px] text-ink-tertiary">
+            <Icon name="clock" size="11" />
+            {item.time}
+          </span>
+        </div>
+      </li>
+    ))}
+  </ul>
+</section>

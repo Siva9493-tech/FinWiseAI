@@ -1,0 +1,83 @@
+---
+// Reusable labeled form field for the loan application.
+// Renders a <select> when `options` are provided, otherwise an <input>.
+interface Option {
+  value: string;
+  label: string;
+}
+
+interface Props {
+  id: string;
+  label: string;
+  type?: string;
+  placeholder?: string;
+  inputmode?: string;
+  min?: number;
+  max?: number;
+  step?: number;
+  prefix?: string;
+  hint?: string;
+  options?: Option[];
+}
+
+const {
+  id,
+  label,
+  type = 'text',
+  placeholder,
+  inputmode,
+  min,
+  max,
+  step,
+  prefix,
+  hint,
+  options,
+} = Astro.props;
+---
+
+<div class="field" data-field={id}>
+  <label class="field-label" for={id}>{label}</label>
+
+  {options ? (
+    <select id={id} name={id} class="field-control" aria-describedby={`${id}-error`}>
+      <option value="" disabled selected>Select {label.toLowerCase()}</option>
+      {options.map((opt) => (
+        <option value={opt.value}>{opt.label}</option>
+      ))}
+    </select>
+  ) : prefix ? (
+    <div class="relative">
+      <span class="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3 text-sm text-ink-subtle">
+        {prefix}
+      </span>
+      <input
+        id={id}
+        name={id}
+        type={type}
+        inputmode={inputmode}
+        placeholder={placeholder}
+        min={min}
+        max={max}
+        step={step}
+        class="field-control pl-7"
+        aria-describedby={`${id}-error`}
+      />
+    </div>
+  ) : (
+    <input
+      id={id}
+      name={id}
+      type={type}
+      inputmode={inputmode}
+      placeholder={placeholder}
+      min={min}
+      max={max}
+      step={step}
+      class="field-control"
+      aria-describedby={`${id}-error`}
+    />
+  )}
+
+  {hint && <p class="mt-1 text-xs text-ink-tertiary">{hint}</p>}
+  <p id={`${id}-error`} class="field-error" role="alert" aria-live="polite"></p>
+</div>

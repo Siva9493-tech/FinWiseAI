@@ -1,0 +1,70 @@
+---
+import Icon from './Icon.astro';
+
+interface Tech {
+  name: string;
+  description: string;
+  icon: string;
+}
+
+const technologies: Tech[] = [
+  {
+    name: 'Astro',
+    description: 'Fast, content-focused web framework for a lightweight landing experience.',
+    icon: 'rocket',
+  },
+  {
+    name: 'TypeScript',
+    description: 'Strict typing across the codebase for reliability and maintainability.',
+    icon: 'code',
+  },
+  {
+    name: 'Tailwind CSS',
+    description: 'Utility-first styling that keeps the UI consistent and responsive.',
+    icon: 'sparkles',
+  },
+  {
+    name: 'Groq AI',
+    description: 'High-speed AI inference powering the financial advisor and explanations.',
+    icon: 'brain',
+  },
+  {
+    name: 'Google Sheets',
+    description: 'Lightweight data storage for analysis history and user records.',
+    icon: 'file-spreadsheet',
+  },
+  {
+    name: 'Google Apps Script',
+    description: 'Serverless backend glue connecting forms, data, and external services.',
+    icon: 'server',
+  },
+];
+---
+
+<section id="stack" class="border-b border-hairline bg-canvas py-20 md:py-24 lg:py-32">
+  <div class="section-container">
+    <div class="mx-auto max-w-3xl text-center">
+      <span class="eyebrow">Technology Stack</span>
+      <h2 class="mt-3 font-display text-3xl font-semibold tracking-tight text-ink md:text-4xl lg:text-5xl">
+        Modern tools, built for performance
+      </h2>
+      <p class="mt-4 text-lg text-ink-subtle">
+        FinWise AI is built with a lean, proven stack chosen for speed, reliability, and learning value.
+      </p>
+    </div>
+
+    <div class="mt-14 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+      {technologies.map((tech) => (
+        <div class="card-surface top-edge-highlight flex h-full items-center gap-4 p-5 group">
+          <div class="flex h-11 w-11 shrink-0 items-center justify-center rounded-lg bg-surface-2 text-ink-muted transition-colors group-hover:bg-primary group-hover:text-on-primary">
+            <Icon name={tech.icon} size="20" />
+          </div>
+          <div>
+            <h3 class="text-base font-semibold tracking-tight text-ink">{tech.name}</h3>
+            <p class="mt-0.5 text-sm leading-relaxed text-ink-subtle">{tech.description}</p>
+          </div>
+        </div>
+      ))}
+    </div>
+  </div>
+</section>

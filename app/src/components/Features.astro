@@ -1,0 +1,62 @@
+---
+import Icon from './Icon.astro';
+
+interface Feature {
+  icon: string;
+  title: string;
+  description: string;
+}
+
+const features: Feature[] = [
+  {
+    icon: 'landmark',
+    title: 'Loan Eligibility Checker',
+    description:
+      'Instantly estimate your eligibility across loan products using income, existing obligations, and lender criteria.',
+  },
+  {
+    icon: 'credit-card',
+    title: 'Credit Score Analyzer',
+    description:
+      'Understand what drives your credit score with breakdowns, improvement suggestions, and risk indicators.',
+  },
+  {
+    icon: 'calculator',
+    title: 'EMI Calculator',
+    description:
+      'Calculate accurate EMIs, total interest, and repayment schedules for personal, home, and vehicle loans.',
+  },
+  {
+    icon: 'brain',
+    title: 'AI Financial Advisor',
+    description:
+      'Receive personalized guidance and actionable advice tailored to your goals and financial profile.',
+  },
+];
+---
+
+<section id="features" class="border-b border-hairline bg-canvas py-20 md:py-24 lg:py-32">
+  <div class="section-container">
+    <div class="mx-auto max-w-3xl text-center">
+      <span class="eyebrow">Core Features</span>
+      <h2 class="mt-3 font-display text-3xl font-semibold tracking-tight text-ink md:text-4xl lg:text-5xl">
+        Everything you need to take control of your finances
+      </h2>
+      <p class="mt-4 text-lg text-ink-subtle">
+        Powerful, easy-to-use tools designed to help you plan, compare, and decide with confidence.
+      </p>
+    </div>
+
+    <div class="mt-14 grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
+      {features.map((feature) => (
+        <div class="card-surface top-edge-highlight flex h-full flex-col p-6 group">
+          <div class="flex h-11 w-11 items-center justify-center rounded-lg bg-primary/15 text-primary transition-colors group-hover:bg-primary group-hover:text-on-primary">
+            <Icon name={feature.icon} size="22" />
+          </div>
+          <h3 class="mt-5 text-lg font-semibold tracking-tight text-ink">{feature.title}</h3>
+          <p class="mt-2 text-sm leading-relaxed text-ink-subtle">{feature.description}</p>
+        </div>
+      ))}
+    </div>
+  </div>
+</section>

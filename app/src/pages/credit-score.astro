@@ -1,0 +1,51 @@
+---
+import DashboardLayout from '../layouts/DashboardLayout.astro';
+import CreditForm from '../features/credit/CreditForm.astro';
+import CreditResult from '../features/credit/CreditResult.astro';
+
+const bands = [
+  { label: 'Poor', range: '300–579' },
+  { label: 'Fair', range: '580–669' },
+  { label: 'Good', range: '670–739' },
+  { label: 'Very Good', range: '740–799' },
+  { label: 'Excellent', range: '800–900' },
+];
+---
+
+<DashboardLayout
+  title="Credit Score Analyzer — FinWise AI"
+  description="Analyze your credit score with local, transparent rules — rating, risk, approval odds, and improvement tips."
+  active="Credit Score"
+>
+  <div class="space-y-6">
+    <!-- Header -->
+    <div>
+      <span class="eyebrow">Financial Tools</span>
+      <h1 class="mt-2 font-display text-2xl font-semibold tracking-tight text-ink md:text-3xl">
+        Credit Score Analyzer
+      </h1>
+      <p class="mt-1.5 max-w-2xl text-sm text-ink-subtle md:text-base">
+        Understand what drives your credit health. Get your rating, risk band, approval probability,
+        and personalized tips — all computed locally.
+      </p>
+    </div>
+
+    <!-- Rating band legend -->
+    <div class="flex flex-wrap gap-2">
+      {bands.map((band) => (
+        <span class="inline-flex items-center gap-1.5 rounded-full border border-hairline bg-surface-1 px-3 py-1 text-xs text-ink-subtle">
+          <span class="font-medium text-ink-muted">{band.label}</span>
+          {band.range}
+        </span>
+      ))}
+    </div>
+
+    <!-- Form + result -->
+    <div class="grid grid-cols-1 gap-6 lg:grid-cols-2">
+      <CreditForm />
+      <div class="lg:sticky lg:top-20 lg:self-start">
+        <CreditResult />
+      </div>
+    </div>
+  </div>
+</DashboardLayout>

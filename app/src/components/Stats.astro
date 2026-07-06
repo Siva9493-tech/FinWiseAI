@@ -1,0 +1,103 @@
+---
+interface StatItem {
+  value: string;
+  suffix: string;
+  label: string;
+}
+
+const stats: StatItem[] = [
+  { value: '50K', suffix: '+', label: 'Eligibility checks run' },
+  { value: '98', suffix: '%', label: 'Calculation accuracy' },
+  { value: '3', suffix: 'x', label: 'Faster loan decisions' },
+  { value: '24', suffix: '/7', label: 'AI advisor available' },
+];
+---
+
+<section class="border-b border-hairline bg-canvas py-16 md:py-20">
+  <div class="section-container">
+    <div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+      {stats.map((stat) => (
+        <div class="glass-card p-6">
+          <div class="flex items-baseline gap-1">
+            <span class="stat-number" data-target={stat.value} data-suffix={stat.suffix}>0{stat.suffix}</span>
+          </div>
+          <p class="mt-1 text-sm text-ink-subtle">{stat.label}</p>
+        </div>
+      ))}
+    </div>
+  </div>
+</section>
+
+<script>
+  class StatCounter {
+    private element: HTMLElement;
+    private target: number;
+    private suffix: string;
+    private duration: number;
+    private hasAnimated: boolean = false;
+
+    constructor(element: HTMLElement, target: number, suffix: string, duration: number = 1500) {
+      this.element = element;
+      this.target = target;
+      this.suffix = suffix;
+      this.duration = duration;
+    }
+
+    animate() {
+      if (this.hasAnimated) return;
+      this.hasAnimated = true;
+
+      const startTime = performance.now();
+      const easeOutQuart = (t: number) => 1 - Math.pow(1 - t, 4);
+
+      const step = (currentTime: number) => {
+        const elapsed = currentTime - startTime;
+        const progress = Math.min(elapsed / this.duration, 1);
+        const easedProgress = easeOutQuart(progress);
+        const currentValue = Math.floor(easedProgress * this.target);
+
+        this.element.textContent = `${currentValue.toLocaleString()}${this.suffix}`;
+
+        if (progress < 1) {
+          requestAnimationFrame(step);
+        } else {
+          this.element.textContent = `${this.target.toLocaleString()}${this.suffix}`;
+        }
+      };
+
+      requestAnimationFrame(step);
+    }
+  }
+
+  const parseTarget = (value: string): number => {
+    const cleaned = value.replace(/[^0-9.]/g, '');
+    return parseFloat(cleaned) || 0;
+  };
+
+  const initCounters = () => {
+    const counters = document.querySelectorAll<HTMLElement>('.stat-number');
+
+    counters.forEach((counter) => {
+      const targetAttr = counter.dataset.target || '0';
+      const suffix = counter.dataset.suffix || '';
+      const target = parseTarget(targetAttr);
+      const statCounter = new StatCounter(counter, target, suffix);
+
+      const observer = new IntersectionObserver(
+        (entries) => {
+          entries.forEach((entry) => {
+            if (entry.isIntersecting) {
+              statCounter.animate();
+              observer.unobserve(counter);
+            }
+          });
+        },
+        { threshold: 0.3 }
+      );
+
+      observer.observe(counter);
+    });
+  };
+
+  document.addEventListener('DOMContentLoaded', initCounters);
+</script>

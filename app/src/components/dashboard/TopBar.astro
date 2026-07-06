@@ -1,0 +1,95 @@
+---
+import Icon from '../Icon.astro';
+---
+
+<header
+  class="sticky top-0 z-30 flex h-14 items-center gap-3 border-b border-hairline bg-canvas/80 px-4 backdrop-blur-md sm:px-6"
+>
+  <!-- Mobile: open sidebar drawer -->
+  <button
+    id="sidebar-toggle"
+    type="button"
+    class="inline-flex h-10 w-10 items-center justify-center rounded-md text-ink lg:hidden focus:outline-none focus-visible:ring-2 focus-visible:ring-primary-focus/50"
+    aria-label="Open navigation"
+    aria-controls="dashboard-sidebar"
+    aria-expanded="false"
+  >
+    <Icon name="menu" size="20" />
+  </button>
+
+  <!-- Search -->
+  <div class="relative hidden max-w-xs flex-1 items-center sm:flex">
+    <span class="pointer-events-none absolute left-3 text-ink-subtle">
+      <Icon name="search" size="16" />
+    </span>
+    <input
+      type="search"
+      placeholder="Search tools, history…"
+      aria-label="Search"
+      class="h-9 w-full rounded-md border border-hairline bg-surface-1 pl-9 pr-3 text-sm text-ink placeholder:text-ink-tertiary focus:border-hairline-strong focus:outline-none focus-visible:ring-2 focus-visible:ring-primary-focus/50"
+    />
+  </div>
+
+  <div class="ml-auto flex items-center gap-2">
+    <button
+      type="button"
+      class="relative inline-flex h-10 w-10 items-center justify-center rounded-md text-ink-subtle transition-colors hover:bg-surface-2 hover:text-ink focus:outline-none focus-visible:ring-2 focus-visible:ring-primary-focus/50"
+      aria-label="Notifications"
+    >
+      <Icon name="bell" size="18" />
+      <span class="absolute right-2.5 top-2.5 h-2 w-2 rounded-full bg-primary ring-2 ring-canvas"></span>
+    </button>
+
+    <a href="#" class="btn-primary hidden sm:inline-flex">
+      <Icon name="plus" size="16" />
+      New Analysis
+    </a>
+
+    <button
+      type="button"
+      class="flex items-center gap-2 rounded-md p-1 pr-2 transition-colors hover:bg-surface-2 focus:outline-none focus-visible:ring-2 focus-visible:ring-primary-focus/50"
+      aria-label="Account menu"
+    >
+      <span class="flex h-8 w-8 items-center justify-center rounded-full bg-surface-2 text-ink-muted">
+        <Icon name="user" size="16" />
+      </span>
+      <span class="hidden text-ink-subtle md:inline">
+        <Icon name="chevron-down" size="16" />
+      </span>
+    </button>
+  </div>
+</header>
+
+<script>
+  const toggle = document.getElementById('sidebar-toggle');
+  const sidebar = document.getElementById('dashboard-sidebar');
+  const backdrop = document.getElementById('sidebar-backdrop');
+
+  if (toggle && sidebar && backdrop) {
+    const open = () => {
+      sidebar.classList.remove('-translate-x-full');
+      backdrop.classList.remove('hidden');
+      toggle.setAttribute('aria-expanded', 'true');
+    };
+
+    const close = () => {
+      sidebar.classList.add('-translate-x-full');
+      backdrop.classList.add('hidden');
+      toggle.setAttribute('aria-expanded', 'false');
+    };
+
+    toggle.addEventListener('click', () => {
+      if (sidebar.classList.contains('-translate-x-full')) {
+        open();
+      } else {
+        close();
+      }
+    });
+
+    backdrop.addEventListener('click', close);
+    sidebar.querySelectorAll('a').forEach((link) => link.addEventListener('click', close));
+    document.addEventListener('keydown', (event) => {
+      if (event.key === 'Escape') close();
+    });
+  }
+</script>

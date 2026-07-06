@@ -1,0 +1,140 @@
+---
+import Icon from './Icon.astro';
+
+const navLinks = [
+  { label: 'Features', href: '#features' },
+  { label: 'How It Works', href: '#how-it-works' },
+  { label: 'Why Us', href: '#why-us' },
+  { label: 'Stack', href: '#stack' },
+];
+---
+
+<header class="sticky top-0 z-50 h-14 w-full border-b border-hairline bg-canvas/80 backdrop-blur-md">
+  <nav class="section-container flex h-full items-center justify-between" aria-label="Main navigation">
+    <a href="#" class="flex items-center gap-2 focus:outline-none focus-visible:ring-2 focus-visible:ring-primary-focus/50 rounded-md">
+      <span class="flex h-7 w-7 items-center justify-center rounded-md bg-primary text-on-primary">
+        <Icon name="sparkles" size="16" />
+      </span>
+      <span class="text-base font-semibold tracking-tight text-ink">FinWise AI</span>
+    </a>
+
+    <ul class="hidden items-center gap-1 md:flex" role="menubar">
+      {navLinks.map((link) => (
+        <li role="none">
+          <a
+            href={link.href}
+            role="menuitem"
+            class="nav-link rounded-md px-3 py-2 focus:outline-none focus-visible:ring-2 focus-visible:ring-primary-focus/50"
+          >
+            {link.label}
+          </a>
+        </li>
+      ))}
+    </ul>
+
+    <div class="hidden items-center gap-2 md:flex">
+      <a href="#" class="btn-tertiary">Sign in</a>
+      <a href="/dashboard" class="btn-primary">Open Dashboard</a>
+    </div>
+
+    <button
+      id="mobile-menu-toggle"
+      type="button"
+      class="inline-flex h-10 w-10 items-center justify-center rounded-md text-ink md:hidden focus:outline-none focus-visible:ring-2 focus-visible:ring-primary-focus/50"
+      aria-expanded="false"
+      aria-controls="mobile-menu"
+      aria-label="Toggle navigation menu"
+    >
+      <Icon name="menu" size="20" />
+    </button>
+  </nav>
+
+  <div
+    id="mobile-menu"
+    class="hidden absolute left-0 right-0 top-14 z-40 border-b border-hairline bg-surface-1 md:hidden"
+    role="dialog"
+    aria-label="Mobile navigation"
+    aria-modal="true"
+  >
+    <ul class="section-container flex flex-col gap-1 py-4">
+      {navLinks.map((link) => (
+        <li>
+          <a
+            href={link.href}
+            class="block rounded-md px-3 py-2.5 text-sm text-ink-muted transition-colors hover:bg-surface-2 hover:text-ink"
+          >
+            {link.label}
+          </a>
+        </li>
+      ))}
+      <li class="mt-2 flex flex-col gap-2">
+        <a href="#" class="btn-tertiary w-full justify-center">Sign in</a>
+        <a href="/dashboard" class="btn-primary w-full justify-center">Open Dashboard</a>
+      </li>
+    </ul>
+  </div>
+</header>
+
+<script>
+  const toggle = document.getElementById('mobile-menu-toggle');
+  const menu = document.getElementById('mobile-menu');
+
+  if (toggle && menu) {
+    const links = menu.querySelectorAll('a');
+
+    const closeMenu = () => {
+      menu.classList.add('hidden');
+      toggle.setAttribute('aria-expanded', 'false');
+    };
+
+    const openMenu = () => {
+      menu.classList.remove('hidden');
+      toggle.setAttribute('aria-expanded', 'true');
+    };
+
+    toggle.addEventListener('click', () => {
+      if (menu.classList.contains('hidden')) {
+        openMenu();
+      } else {
+        closeMenu();
+      }
+    });
+
+    links.forEach((link) => link.addEventListener('click', closeMenu));
+
+    document.addEventListener('keydown', (event) => {
+      if (event.key === 'Escape' && !menu.classList.contains('hidden')) {
+        closeMenu();
+      }
+    });
+  }
+
+  // Scrollspy: highlight the nav link whose section is currently in view.
+  const navLinks = Array.from(
+    document.querySelectorAll<HTMLAnchorElement>('nav [role="menuitem"]')
+  ).filter((link) => link.getAttribute('href')?.startsWith('#'));
+
+  const sections = navLinks
+    .map((link) => {
+      const id = link.getAttribute('href')!.slice(1);
+      const section = document.getElementById(id);
+      return section ? { link, section } : null;
+    })
+    .filter((entry): entry is { link: HTMLAnchorElement; section: HTMLElement } => entry !== null);
+
+  if (sections.length > 0) {
+    const spy = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (!entry.isIntersecting) return;
+          navLinks.forEach((link) => link.classList.remove('is-active'));
+          const match = sections.find((s) => s.section === entry.target);
+          match?.link.classList.add('is-active');
+        });
+      },
+      { rootMargin: '-45% 0px -50% 0px', threshold: 0 }
+    );
+
+    sections.forEach(({ section }) => spy.observe(section));
+  }
+</script>

@@ -1,0 +1,33 @@
+---
+import Layout from './Layout.astro';
+import Sidebar from '../components/dashboard/Sidebar.astro';
+import TopBar from '../components/dashboard/TopBar.astro';
+
+interface Props {
+  title?: string;
+  description?: string;
+  /** Active sidebar item label. */
+  active?: string;
+}
+
+const {
+  title = 'Dashboard — FinWise AI',
+  description = 'Your Financial Intelligence Dashboard — loan eligibility, credit score, EMI, and AI insights at a glance.',
+  active = 'Overview',
+} = Astro.props;
+---
+
+<Layout title={title} description={description}>
+  <div class="min-h-screen bg-canvas">
+    <Sidebar active={active} />
+
+    <div class="flex min-h-screen flex-col lg:pl-64">
+      <TopBar />
+      <main class="flex-1 px-4 py-6 sm:px-6 lg:px-8">
+        <div class="mx-auto w-full max-w-6xl">
+          <slot />
+        </div>
+      </main>
+    </div>
+  </div>
+</Layout>

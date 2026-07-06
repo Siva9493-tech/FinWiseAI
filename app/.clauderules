@@ -1,0 +1,69 @@
+# FinWise AI - Claude Rules
+
+## Project Context
+
+This project is FinWise AI, an AI-powered Financial Intelligence Platform developed for the SmartBridge Vibe Coding Internship.
+
+The application must satisfy internship requirements while maintaining production-quality architecture suitable for a professional portfolio.
+
+---
+
+## Always Follow
+
+- Follow DESIGN.md for UI and visual language.
+- Follow .ai/project_rules.md for engineering standards.
+- Build only the requested module.
+- Never modify unrelated files.
+- Never change architecture without approval.
+
+---
+
+## Tech Stack
+
+Framework: Astro
+
+Language: TypeScript
+
+Styling: Tailwind CSS v4
+
+Icons: Lucide
+
+AI: Groq (llama-3.3-70b-versatile)
+
+Database: Google Sheets
+
+Deployment: Vercel
+
+---
+
+## Coding Rules
+
+- Write modular code.
+- Prefer reusable components.
+- Keep components small.
+- Separate business logic from UI.
+- Never use inline CSS.
+- Avoid duplicate code.
+- Use strict TypeScript.
+- Handle loading and error states.
+
+---
+
+## Financial Rules
+
+Loan eligibility, EMI calculations, and financial formulas must be implemented locally.
+
+AI is used only for reasoning, explanations, and recommendations.
+
+---
+
+## Workflow
+
+When asked to build a feature:
+
+1. Understand the request.
+2. Create reusable components.
+3. Keep files organized.
+4. Wait for review before starting the next module.
+
+Never build the entire application unless explicitly instructed.

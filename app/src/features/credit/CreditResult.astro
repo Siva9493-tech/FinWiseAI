@@ -1,0 +1,116 @@
+---
+import Icon from '../../components/Icon.astro';
+---
+
+<!--
+  Credit result card. Hidden until an analysis completes; the client script in
+  CreditForm.astro toggles the tone class and fills the [id=result-*] slots.
+-->
+<section id="credit-result" class="hidden" aria-live="polite" aria-label="Credit analysis result">
+  <article class="glass-card tone-ring animate-reveal p-6 md:p-7">
+    <!-- Score + rating header -->
+    <div class="flex items-center gap-5">
+      <div
+        id="score-ring"
+        class="tone-fg animate-pop relative flex h-24 w-24 shrink-0 items-center justify-center rounded-full"
+        style="background: conic-gradient(var(--tone) var(--ring, 0%), var(--color-surface-2) 0);"
+      >
+        <div class="flex h-[5.25rem] w-[5.25rem] flex-col items-center justify-center rounded-full bg-surface-1">
+          <span id="result-score" class="font-display text-2xl font-semibold tracking-tight text-ink">—</span>
+          <span class="text-[10px] uppercase tracking-wider text-ink-subtle">/ 900</span>
+        </div>
+      </div>
+      <div class="min-w-0">
+        <p class="text-xs font-medium uppercase tracking-wider text-ink-subtle">Credit Rating</p>
+        <h3 id="result-rating" class="tone-fg mt-0.5 font-display text-2xl font-semibold tracking-tight">—</h3>
+        <span
+          id="result-risk"
+          class="tone-bg-soft tone-fg mt-2 inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-medium"
+        >
+          <Icon name="shield-check" size="13" />
+          <span id="result-risk-label">—</span>
+        </span>
+      </div>
+    </div>
+
+    <!-- Approval + health -->
+    <div class="mt-6 grid gap-3 sm:grid-cols-2">
+      <div class="rounded-lg border border-hairline bg-surface-1/60 p-4">
+        <p class="text-xs text-ink-subtle">Approval Probability</p>
+        <p id="result-approval" class="tone-fg mt-1 text-2xl font-semibold tracking-tight">—</p>
+      </div>
+      <div class="rounded-lg border border-hairline bg-surface-1/60 p-4">
+        <div class="flex items-center justify-between">
+          <p class="text-xs text-ink-subtle">Financial Health</p>
+          <p id="result-health-label" class="text-xs font-medium text-ink-muted">—</p>
+        </div>
+        <div class="mt-2 h-2 w-full overflow-hidden rounded-full bg-surface-3">
+          <div id="result-health-bar" class="h-full rounded-full transition-[width] duration-700 ease-out" style="width:0%; background-color: var(--tone);"></div>
+        </div>
+        <p id="result-health-value" class="mt-1 text-right text-xs text-ink-subtle">—</p>
+      </div>
+    </div>
+
+    <!-- Positive / negative factors -->
+    <div class="mt-6 grid gap-4 sm:grid-cols-2">
+      <div>
+        <p class="flex items-center gap-1.5 text-xs font-medium uppercase tracking-wider text-ink-subtle">
+          <span class="text-success"><Icon name="trending-up" size="14" /></span>
+          Positive Factors
+        </p>
+        <ul id="result-positives" class="mt-2 space-y-2"></ul>
+      </div>
+      <div>
+        <p class="flex items-center gap-1.5 text-xs font-medium uppercase tracking-wider text-ink-subtle">
+          <span class="text-ink-muted"><Icon name="circle-alert" size="14" /></span>
+          Negative Factors
+        </p>
+        <ul id="result-negatives" class="mt-2 space-y-2"></ul>
+      </div>
+    </div>
+
+    <!-- Improvement recommendations -->
+    <div class="mt-6">
+      <p class="text-xs font-medium uppercase tracking-wider text-ink-subtle">Improvement Recommendations</p>
+      <ul id="result-tips" class="mt-2 space-y-2"></ul>
+    </div>
+
+    <!-- Estimated time to improve -->
+    <div class="tone-border tone-bg-soft mt-5 flex items-start gap-3 rounded-lg border p-4">
+      <span class="tone-fg mt-0.5 shrink-0"><Icon name="clock" size="16" /></span>
+      <div>
+        <p class="text-sm font-medium text-ink">Estimated Time to Improve</p>
+        <p id="result-time" class="mt-0.5 text-sm text-ink-muted"></p>
+      </div>
+    </div>
+
+    <!-- AI Credit Analysis placeholder (future Groq integration) -->
+    <div class="mt-5 rounded-lg border border-dashed border-hairline-strong bg-surface-1/40 p-4">
+      <div class="flex items-center gap-2">
+        <span class="flex h-7 w-7 items-center justify-center rounded-md bg-primary/15 text-primary">
+          <Icon name="sparkles" size="14" />
+        </span>
+        <p class="text-sm font-medium text-ink">AI Credit Analysis</p>
+        <span class="ml-auto inline-flex items-center gap-1 rounded-full bg-surface-2 px-2 py-0.5 text-[11px] font-medium text-ink-subtle">
+          <Icon name="lock" size="11" />
+          Coming Soon (Groq AI)
+        </span>
+      </div>
+      <p class="mt-2 text-sm leading-relaxed text-ink-subtle">
+        A personalized, AI-generated breakdown of your credit profile and a step-by-step improvement
+        plan will appear here — powered by Groq (llama-3.3-70b-versatile) in an upcoming module.
+      </p>
+    </div>
+  </article>
+</section>
+
+<!-- Empty state (before first analysis) -->
+<div id="credit-empty" class="glass-card flex flex-col items-center justify-center p-8 text-center md:p-10">
+  <span class="flex h-12 w-12 items-center justify-center rounded-full bg-surface-2 text-ink-subtle">
+    <Icon name="credit-card" size="24" />
+  </span>
+  <h3 class="mt-4 text-base font-semibold tracking-tight text-ink">Your analysis appears here</h3>
+  <p class="mt-1.5 max-w-xs text-sm text-ink-subtle">
+    Enter your credit details and run an analysis to see your rating, approval odds, and tailored tips.
+  </p>
+</div>

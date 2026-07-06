@@ -1,0 +1,33 @@
+---
+import Icon from '../Icon.astro';
+import type { KpiCard } from '../../types/dashboard';
+
+type Props = KpiCard;
+
+const { icon, label, value, hint, change, trend, href } = Astro.props;
+
+const trendColor =
+  trend === 'up' ? 'text-success' : trend === 'down' ? 'text-ink-muted' : 'text-ink-subtle';
+const trendIcon = trend === 'down' ? 'arrow-down-right' : 'arrow-up-right';
+---
+
+<a
+  href={href}
+  class="card-surface top-edge-highlight group flex h-full flex-col p-5 focus:outline-none focus-visible:ring-2 focus-visible:ring-primary-focus/50"
+>
+  <div class="flex items-start justify-between">
+    <span
+      class="flex h-10 w-10 items-center justify-center rounded-lg bg-primary/15 text-primary transition-colors group-hover:bg-primary group-hover:text-on-primary"
+    >
+      <Icon name={icon} size="20" />
+    </span>
+    <span class={`inline-flex items-center gap-1 text-xs font-medium ${trendColor}`}>
+      <Icon name={trendIcon} size="14" />
+      {change}
+    </span>
+  </div>
+
+  <p class="mt-4 text-sm text-ink-subtle">{label}</p>
+  <p class="mt-1 text-2xl font-semibold tracking-tight text-ink">{value}</p>
+  <p class="mt-1 text-xs text-ink-tertiary">{hint}</p>
+</a>

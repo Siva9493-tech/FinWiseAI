@@ -1,0 +1,74 @@
+---
+import DashboardLayout from '../layouts/DashboardLayout.astro';
+import WelcomeHeader from '../components/dashboard/WelcomeHeader.astro';
+import KpiCard from '../components/dashboard/KpiCard.astro';
+import QuickActions from '../components/dashboard/QuickActions.astro';
+import RecentActivity from '../components/dashboard/RecentActivity.astro';
+import AiInsights from '../components/dashboard/AiInsights.astro';
+import type { KpiCard as KpiCardType } from '../types/dashboard';
+
+// Realistic placeholder values — no financial logic yet.
+const kpis: KpiCardType[] = [
+  {
+    icon: 'landmark',
+    label: 'Loan Eligibility',
+    value: '87%',
+    hint: 'High approval chance',
+    change: '+4%',
+    trend: 'up',
+    href: '/loan-eligibility',
+  },
+  {
+    icon: 'credit-card',
+    label: 'Credit Score',
+    value: '742',
+    hint: 'Good standing',
+    change: '+18',
+    trend: 'up',
+    href: '/credit-score',
+  },
+  {
+    icon: 'calculator',
+    label: 'Est. Monthly EMI',
+    value: '₹18,420',
+    hint: 'Home loan · 20 yrs',
+    change: '-2.1%',
+    trend: 'down',
+    href: '#',
+  },
+  {
+    icon: 'brain',
+    label: 'AI Advisor',
+    value: 'Active',
+    hint: '3 new insights',
+    change: 'Live',
+    trend: 'neutral',
+    href: '#',
+  },
+];
+---
+
+<DashboardLayout active="Overview">
+  <div class="space-y-6">
+    <WelcomeHeader name="Siva" />
+
+    <!-- KPI cards -->
+    <section aria-label="Key metrics">
+      <div class="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+        {kpis.map((kpi) => <KpiCard {...kpi} />)}
+      </div>
+    </section>
+
+    <!-- Primary two-column area -->
+    <div class="grid gap-6 lg:grid-cols-3">
+      <div class="lg:col-span-2">
+        <RecentActivity />
+      </div>
+      <div>
+        <AiInsights />
+      </div>
+    </div>
+
+    <QuickActions />
+  </div>
+</DashboardLayout>

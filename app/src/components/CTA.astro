@@ -1,0 +1,31 @@
+---
+import Icon from './Icon.astro';
+---
+
+<section id="cta" class="bg-canvas py-20 md:py-24 lg:py-32">
+  <div class="section-container">
+    <div class="relative overflow-hidden rounded-2xl border border-hairline bg-surface-1 p-8 md:p-12 lg:p-16 top-edge-highlight">
+      <div class="absolute -right-20 -top-20 h-64 w-64 rounded-full bg-primary/10 blur-3xl"></div>
+      <div class="absolute -bottom-16 -left-16 h-48 w-48 rounded-full bg-primary/5 blur-3xl"></div>
+
+      <div class="relative z-10 mx-auto max-w-3xl text-center">
+        <h2 class="font-display text-3xl font-semibold tracking-tight text-ink md:text-4xl lg:text-5xl">
+          Ready to make your smartest financial move?
+        </h2>
+        <p class="mx-auto mt-4 max-w-xl text-lg text-ink-subtle">
+          Join FinWise AI and start checking eligibility, analyzing credit, and planning your loans with AI guidance.
+        </p>
+        <div class="mt-8 flex flex-col items-center justify-center gap-3 sm:flex-row">
+          <a href="#" class="btn-primary px-6 py-3 text-base">
+            Get Started Free
+            <Icon name="arrow-right" size="16" />
+          </a>
+          <a href="#features" class="btn-secondary px-6 py-3 text-base">
+            Learn More
+          </a>
+        </div>
+        <p class="mt-4 text-xs text-ink-tertiary">Free to use. No hidden fees.</p>
+      </div>
+    </div>
+  </div>
+</section>

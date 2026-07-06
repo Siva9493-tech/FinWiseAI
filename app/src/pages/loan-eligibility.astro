@@ -1,0 +1,50 @@
+---
+import DashboardLayout from '../layouts/DashboardLayout.astro';
+import LoanForm from '../features/loan/LoanForm.astro';
+import LoanResult from '../features/loan/LoanResult.astro';
+import { LOAN_POLICY, formatInr } from '../utils/loan';
+---
+
+<DashboardLayout
+  title="Loan Eligibility Checker — FinWise AI"
+  description="Check your loan eligibility instantly with local, transparent financial calculations."
+  active="Loan Eligibility"
+>
+  <div class="space-y-6">
+    <!-- Header -->
+    <div>
+      <span class="eyebrow">Financial Tools</span>
+      <h1 class="mt-2 font-display text-2xl font-semibold tracking-tight text-ink md:text-3xl">
+        Loan Eligibility Checker
+      </h1>
+      <p class="mt-1.5 max-w-2xl text-sm text-ink-subtle md:text-base">
+        Enter your details to estimate how much you can borrow, your risk band, and an indicative EMI —
+        all computed locally with transparent formulas.
+      </p>
+    </div>
+
+    <!-- Policy summary chips -->
+    <div class="flex flex-wrap gap-2">
+      <span class="inline-flex items-center gap-1.5 rounded-full border border-hairline bg-surface-1 px-3 py-1 text-xs text-ink-subtle">
+        Age {LOAN_POLICY.minAge}–{LOAN_POLICY.maxAge}
+      </span>
+      <span class="inline-flex items-center gap-1.5 rounded-full border border-hairline bg-surface-1 px-3 py-1 text-xs text-ink-subtle">
+        Min income {formatInr(LOAN_POLICY.minMonthlyIncome)}
+      </span>
+      <span class="inline-flex items-center gap-1.5 rounded-full border border-hairline bg-surface-1 px-3 py-1 text-xs text-ink-subtle">
+        Max FOIR {Math.round(LOAN_POLICY.maxFoir * 100)}%
+      </span>
+      <span class="inline-flex items-center gap-1.5 rounded-full border border-hairline bg-surface-1 px-3 py-1 text-xs text-ink-subtle">
+        Credit 750+ = Low Risk
+      </span>
+    </div>
+
+    <!-- Form + result -->
+    <div class="grid grid-cols-1 gap-6 lg:grid-cols-2">
+      <LoanForm />
+      <div class="lg:sticky lg:top-20 lg:self-start">
+        <LoanResult />
+      </div>
+    </div>
+  </div>
+</DashboardLayout>

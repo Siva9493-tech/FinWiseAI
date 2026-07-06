@@ -1,0 +1,264 @@
+---
+import Icon from '../../components/Icon.astro';
+import Field from '../../components/Field.astro';
+---
+
+<form id="credit-form" class="glass-card p-6 md:p-7" novalidate>
+  <div class="flex items-center gap-2">
+    <span class="flex h-8 w-8 items-center justify-center rounded-md bg-primary/15 text-primary">
+      <Icon name="credit-card" size="16" />
+    </span>
+    <h2 class="text-base font-semibold tracking-tight text-ink">Credit Profile</h2>
+  </div>
+  <p class="mt-1 text-sm text-ink-subtle">
+    All analysis runs locally on your device. No data leaves this page.
+  </p>
+
+  <div class="mt-6 grid grid-cols-1 gap-x-5 gap-y-4 sm:grid-cols-2">
+    <Field
+      id="creditScore"
+      label="Credit Score"
+      type="number"
+      inputmode="numeric"
+      placeholder="300–900"
+      min={300}
+      max={900}
+    />
+
+    <Field
+      id="monthlyIncome"
+      label="Monthly Income"
+      type="number"
+      inputmode="numeric"
+      placeholder="50,000"
+      prefix="₹"
+      min={0}
+    />
+
+    <Field
+      id="existingEmi"
+      label="Existing EMI"
+      type="number"
+      inputmode="numeric"
+      placeholder="0"
+      prefix="₹"
+      min={0}
+      hint="Enter 0 if none"
+    />
+
+    <Field
+      id="activeLoans"
+      label="Number of Active Loans"
+      type="number"
+      inputmode="numeric"
+      placeholder="0"
+      min={0}
+      max={50}
+    />
+
+    <Field
+      id="creditUtilization"
+      label="Credit Card Utilization (%)"
+      type="number"
+      inputmode="numeric"
+      placeholder="0–100"
+      min={0}
+      max={100}
+    />
+
+    <Field
+      id="recentEnquiries"
+      label="Recent Loan Enquiries (6 mo)"
+      type="number"
+      inputmode="numeric"
+      placeholder="0"
+      min={0}
+      max={50}
+    />
+  </div>
+
+  <div class="mt-6 flex flex-col gap-3 sm:flex-row">
+    <button id="credit-submit" type="submit" class="btn-primary h-11 px-5 text-sm sm:flex-1">
+      <span id="submit-idle" class="inline-flex items-center gap-2">
+        <Icon name="gauge" size="16" />
+        Analyze Credit Score
+      </span>
+      <span id="submit-loading" class="hidden items-center gap-2">
+        <svg class="h-4 w-4 animate-spin" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+          <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+          <path class="opacity-90" fill="currentColor" d="M4 12a8 8 0 0 1 8-8V0C5.4 0 0 5.4 0 12h4z"></path>
+        </svg>
+        Analyzing…
+      </span>
+    </button>
+    <button id="credit-reset" type="reset" class="btn-secondary h-11 px-5 text-sm">
+      <Icon name="rotate-ccw" size="16" />
+      Reset
+    </button>
+  </div>
+</form>
+
+<script>
+  import { analyzeCredit } from '../../utils/credit';
+  import { validateCreditProfile, type RawCreditInput, type CreditField } from '../../utils/credit-validation';
+
+  const form = document.getElementById('credit-form') as HTMLFormElement | null;
+  const result = document.getElementById('credit-result');
+  const empty = document.getElementById('credit-empty');
+  const submitBtn = document.getElementById('credit-submit') as HTMLButtonElement | null;
+  const idle = document.getElementById('submit-idle');
+  const loading = document.getElementById('submit-loading');
+
+  const FIELDS: CreditField[] = [
+    'creditScore', 'monthlyIncome', 'existingEmi', 'activeLoans', 'creditUtilization', 'recentEnquiries',
+  ];
+
+  const TONE_CLASSES = ['tone-green', 'tone-yellow', 'tone-red'];
+  const CHECK_SVG =
+    '<svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>';
+  const DOT = '<span class="mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full" style="background-color:currentColor"></span>';
+
+  function getRaw(): RawCreditInput {
+    const raw: RawCreditInput = {};
+    if (!form) return raw;
+    const data = new FormData(form);
+    for (const field of FIELDS) {
+      raw[field] = (data.get(field) as string | null)?.toString() ?? '';
+    }
+    return raw;
+  }
+
+  function setFieldError(field: CreditField, message?: string) {
+    const input = document.getElementById(field);
+    const errorEl = document.getElementById(`${field}-error`);
+    if (!input || !errorEl) return;
+    if (message) {
+      input.classList.add('has-error');
+      input.setAttribute('aria-invalid', 'true');
+      errorEl.textContent = message;
+      errorEl.classList.add('is-visible');
+    } else {
+      input.classList.remove('has-error');
+      input.removeAttribute('aria-invalid');
+      errorEl.textContent = '';
+      errorEl.classList.remove('is-visible');
+    }
+  }
+
+  function clearErrors() {
+    FIELDS.forEach((f) => setFieldError(f, undefined));
+  }
+
+  function setText(id: string, value: string) {
+    const el = document.getElementById(id);
+    if (el) el.textContent = value;
+  }
+
+  function setLoading(isLoading: boolean) {
+    if (!submitBtn || !idle || !loading) return;
+    submitBtn.disabled = isLoading;
+    idle.classList.toggle('hidden', isLoading);
+    loading.classList.toggle('hidden', !isLoading);
+    loading.classList.toggle('inline-flex', isLoading);
+  }
+
+  function factorItems(items: { label: string; detail: string }[], empty: string): string {
+    if (items.length === 0) {
+      return `<li class="text-sm text-ink-tertiary">${empty}</li>`;
+    }
+    return items
+      .map(
+        (f) =>
+          `<li class="flex gap-2 text-sm text-ink-muted">${DOT}<span><span class="font-medium text-ink">${f.label}</span> — ${f.detail}</span></li>`
+      )
+      .join('');
+  }
+
+  function renderResult(profile: NonNullable<ReturnType<typeof validateCreditProfile>['value']>) {
+    if (!result) return;
+    const a = analyzeCredit(profile);
+
+    const article = result.querySelector('article');
+    if (article) {
+      TONE_CLASSES.forEach((c) => article.classList.remove(c));
+      article.classList.add(`tone-${a.tone}`);
+      article.classList.remove('animate-reveal');
+      void (article as HTMLElement).offsetWidth;
+      article.classList.add('animate-reveal');
+    }
+
+    setText('result-score', String(a.score));
+    setText('result-rating', a.rating);
+    setText('result-risk-label', a.riskLabel);
+    setText('result-approval', `${a.approvalProbability}%`);
+    setText('result-health-label', a.healthLabel);
+    setText('result-health-value', `${a.financialHealth}/100`);
+
+    // Score ring fill (300–900 mapped to 0–100%).
+    const ring = document.getElementById('score-ring');
+    const pct = Math.round(((a.score - 300) / 600) * 100);
+    ring?.style.setProperty('--ring', `${pct}%`);
+
+    // Health bar — set after a tick so the width transition animates.
+    const bar = document.getElementById('result-health-bar');
+    if (bar) {
+      bar.style.width = '0%';
+      requestAnimationFrame(() => requestAnimationFrame(() => (bar.style.width = `${a.financialHealth}%`)));
+    }
+
+    const positives = document.getElementById('result-positives');
+    if (positives) positives.innerHTML = factorItems(a.positiveFactors, 'No standout positives yet.');
+
+    const negatives = document.getElementById('result-negatives');
+    if (negatives) negatives.innerHTML = factorItems(a.negativeFactors, 'No major red flags. Well done!');
+
+    const tips = document.getElementById('result-tips');
+    if (tips) {
+      tips.innerHTML = a.improvementTips
+        .map(
+          (tip) =>
+            `<li class="flex gap-2.5 text-sm text-ink-muted"><span class="tone-fg mt-0.5 shrink-0">${CHECK_SVG}</span><span class="leading-relaxed">${tip}</span></li>`
+        )
+        .join('');
+    }
+
+    setText('result-time', a.estimatedTimeToImprove);
+
+    empty?.classList.add('hidden');
+    result.classList.remove('hidden');
+    result.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+  }
+
+  form?.addEventListener('submit', (event) => {
+    event.preventDefault();
+    clearErrors();
+
+    const outcome = validateCreditProfile(getRaw());
+    if (!outcome.valid) {
+      (Object.keys(outcome.errors) as CreditField[]).forEach((field) =>
+        setFieldError(field, outcome.errors[field])
+      );
+      document.getElementById(Object.keys(outcome.errors)[0])?.focus();
+      return;
+    }
+
+    setLoading(true);
+    window.setTimeout(() => {
+      renderResult(outcome.value!);
+      setLoading(false);
+    }, 650);
+  });
+
+  FIELDS.forEach((field) => {
+    const input = document.getElementById(field);
+    input?.addEventListener('input', () => setFieldError(field, undefined));
+    input?.addEventListener('change', () => setFieldError(field, undefined));
+  });
+
+  form?.addEventListener('reset', () => {
+    clearErrors();
+    setLoading(false);
+    result?.classList.add('hidden');
+    empty?.classList.remove('hidden');
+  });
+</script>

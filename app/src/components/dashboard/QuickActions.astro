@@ -1,0 +1,60 @@
+---
+import Icon from '../Icon.astro';
+import type { QuickAction } from '../../types/dashboard';
+
+const actions: QuickAction[] = [
+  {
+    icon: 'landmark',
+    label: 'Check Loan Eligibility',
+    description: 'Estimate how much you can borrow.',
+    href: '/loan-eligibility',
+  },
+  {
+    icon: 'calculator',
+    label: 'Calculate EMI',
+    description: 'Plan monthly repayments instantly.',
+    href: '#',
+  },
+  {
+    icon: 'credit-card',
+    label: 'Analyze Credit Score',
+    description: 'See what drives your score.',
+    href: '/credit-score',
+  },
+  {
+    icon: 'brain',
+    label: 'Ask AI Advisor',
+    description: 'Get personalized guidance.',
+    href: '#',
+  },
+];
+---
+
+<section class="card-static top-edge-highlight p-5" aria-labelledby="quick-actions-title">
+  <div class="flex items-center justify-between">
+    <h2 id="quick-actions-title" class="text-base font-semibold tracking-tight text-ink">
+      Quick Actions
+    </h2>
+    <Icon name="zap" size="16" />
+  </div>
+
+  <div class="mt-4 grid gap-3 sm:grid-cols-2">
+    {actions.map((action) => (
+      <a
+        href={action.href}
+        class="group flex items-center gap-3 rounded-md border border-hairline bg-surface-2 p-3 transition-colors hover:border-hairline-strong hover:bg-surface-3 focus:outline-none focus-visible:ring-2 focus-visible:ring-primary-focus/50"
+      >
+        <span class="flex h-9 w-9 shrink-0 items-center justify-center rounded-md bg-primary/15 text-primary transition-colors group-hover:bg-primary group-hover:text-on-primary">
+          <Icon name={action.icon} size="18" />
+        </span>
+        <span class="min-w-0 flex-1">
+          <span class="block truncate text-sm font-medium text-ink">{action.label}</span>
+          <span class="block truncate text-xs text-ink-subtle">{action.description}</span>
+        </span>
+        <span class="text-ink-tertiary transition-colors group-hover:text-ink">
+          <Icon name="chevron-right" size="16" />
+        </span>
+      </a>
+    ))}
+  </div>
+</section>

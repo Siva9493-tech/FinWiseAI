@@ -1,0 +1,88 @@
+---
+import Icon from '../Icon.astro';
+import type { SidebarLink } from '../../types/dashboard';
+
+interface Props {
+  /** Currently active link label — drives the highlighted state. */
+  active?: string;
+}
+
+const { active = 'Overview' } = Astro.props;
+
+const primaryLinks: SidebarLink[] = [
+  { icon: 'layout-dashboard', label: 'Overview', href: '/dashboard' },
+  { icon: 'landmark', label: 'Loan Eligibility', href: '/loan-eligibility' },
+  { icon: 'credit-card', label: 'Credit Score', href: '/credit-score' },
+  { icon: 'calculator', label: 'EMI Calculator', href: '#' },
+  { icon: 'brain', label: 'AI Advisor', href: '#' },
+  { icon: 'history', label: 'History', href: '#' },
+];
+
+const secondaryLinks: SidebarLink[] = [
+  { icon: 'settings', label: 'Settings', href: '#' },
+  { icon: 'help-circle', label: 'Help & Support', href: '#' },
+];
+---
+
+<aside
+  id="dashboard-sidebar"
+  class="fixed inset-y-0 left-0 z-50 flex w-64 -translate-x-full flex-col border-r border-hairline bg-canvas transition-transform duration-200 ease-out lg:translate-x-0"
+  aria-label="Dashboard navigation"
+>
+  <div class="flex h-14 shrink-0 items-center gap-2 border-b border-hairline px-5">
+    <a href="/" class="flex items-center gap-2 rounded-md focus:outline-none focus-visible:ring-2 focus-visible:ring-primary-focus/50">
+      <span class="flex h-7 w-7 items-center justify-center rounded-md bg-primary text-on-primary">
+        <Icon name="sparkles" size="16" />
+      </span>
+      <span class="text-base font-semibold tracking-tight text-ink">FinWise AI</span>
+    </a>
+  </div>
+
+  <nav class="flex flex-1 flex-col gap-1 overflow-y-auto p-3">
+    <p class="px-3 pb-1 pt-2 text-[11px] font-semibold uppercase tracking-wider text-ink-tertiary">
+      Menu
+    </p>
+    {primaryLinks.map((link) => (
+      <a
+        href={link.href}
+        class:list={['side-link', { 'is-active': link.label === active }]}
+        aria-current={link.label === active ? 'page' : undefined}
+      >
+        <Icon name={link.icon} size="18" />
+        {link.label}
+      </a>
+    ))}
+
+    <p class="px-3 pb-1 pt-5 text-[11px] font-semibold uppercase tracking-wider text-ink-tertiary">
+      General
+    </p>
+    {secondaryLinks.map((link) => (
+      <a href={link.href} class="side-link">
+        <Icon name={link.icon} size="18" />
+        {link.label}
+      </a>
+    ))}
+  </nav>
+
+  <div class="shrink-0 border-t border-hairline p-3">
+    <div class="flex items-center gap-3 rounded-md px-2 py-2">
+      <span class="flex h-9 w-9 items-center justify-center rounded-full bg-surface-2 text-ink-muted">
+        <Icon name="user" size="18" />
+      </span>
+      <div class="min-w-0 flex-1">
+        <p class="truncate text-sm font-medium text-ink">Siva Balaji</p>
+        <p class="truncate text-xs text-ink-subtle">siva@finwise.ai</p>
+      </div>
+      <a href="/" class="text-ink-subtle transition-colors hover:text-ink" aria-label="Sign out">
+        <Icon name="log-out" size="18" />
+      </a>
+    </div>
+  </div>
+</aside>
+
+<!-- Backdrop for mobile drawer -->
+<div
+  id="sidebar-backdrop"
+  class="fixed inset-0 z-40 hidden bg-black/60 backdrop-blur-sm lg:hidden"
+  aria-hidden="true"
+></div>

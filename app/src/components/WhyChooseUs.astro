@@ -1,0 +1,76 @@
+---
+import Icon from './Icon.astro';
+
+interface Reason {
+  icon: string;
+  title: string;
+  description: string;
+}
+
+const reasons: Reason[] = [
+  {
+    icon: 'shield-check',
+    title: 'Accurate & transparent',
+    description:
+      'Loan and EMI calculations are computed locally with clear formulas — no black boxes, no hidden assumptions.',
+  },
+  {
+    icon: 'zap',
+    title: 'Instant results',
+    description:
+      'Get eligibility, credit, and EMI insights in seconds without waiting for advisors or lengthy forms.',
+  },
+  {
+    icon: 'lock',
+    title: 'Privacy-first',
+    description:
+      'Your data is used only to power your analysis. We design with security and minimal data collection in mind.',
+  },
+  {
+    icon: 'smartphone',
+    title: 'Mobile ready',
+    description:
+      'A responsive experience that works beautifully on phones, tablets, and desktops wherever you are.',
+  },
+  {
+    icon: 'brain',
+    title: 'AI that explains',
+    description:
+      'FinWise AI interprets results in plain language so you understand the why behind every recommendation.',
+  },
+  {
+    icon: 'trending-up',
+    title: 'Built for growth',
+    description:
+      'Track your financial progress over time with saved analysis history and evolving AI guidance.',
+  },
+];
+---
+
+<section id="why-us" class="border-b border-hairline bg-canvas py-20 md:py-24 lg:py-32">
+  <div class="section-container">
+    <div class="mx-auto max-w-3xl text-center">
+      <span class="eyebrow">Why Choose FinWise AI</span>
+      <h2 class="mt-3 font-display text-3xl font-semibold tracking-tight text-ink md:text-4xl lg:text-5xl">
+        Engineered for clarity, speed, and trust
+      </h2>
+      <p class="mt-4 text-lg text-ink-subtle">
+        We blend rigorous financial logic with helpful AI so you can plan with confidence.
+      </p>
+    </div>
+
+    <div class="mt-14 grid gap-5 md:grid-cols-2 lg:grid-cols-3">
+      {reasons.map((reason) => (
+        <div class="card-surface top-edge-highlight flex h-full gap-5 p-6 group">
+          <div class="flex h-10 w-10 shrink-0 items-center justify-center rounded-md bg-surface-2 text-primary transition-colors group-hover:bg-primary group-hover:text-on-primary">
+            <Icon name={reason.icon} size="20" />
+          </div>
+          <div>
+            <h3 class="text-base font-semibold tracking-tight text-ink">{reason.title}</h3>
+            <p class="mt-1 text-sm leading-relaxed text-ink-subtle">{reason.description}</p>
+          </div>
+        </div>
+      ))}
+    </div>
+  </div>
+</section>

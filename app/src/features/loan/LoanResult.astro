@@ -1,0 +1,100 @@
+---
+import Icon from '../../components/Icon.astro';
+---
+
+<!--
+  Result card. Hidden until an eligibility check completes; the client script
+  in LoanForm.astro toggles the tone class and fills the [data-result-*] slots.
+-->
+<section
+  id="loan-result"
+  class="hidden"
+  aria-live="polite"
+  aria-label="Eligibility result"
+>
+  <article class="glass-card tone-ring animate-reveal p-6 md:p-7">
+    <!-- Status header -->
+    <div class="flex items-start gap-4">
+      <span
+        id="result-icon"
+        class="tone-bg-soft tone-fg animate-pop flex h-12 w-12 shrink-0 items-center justify-center rounded-full"
+      >
+        <Icon name="circle-check" size="26" />
+      </span>
+      <div class="min-w-0">
+        <p class="text-xs font-medium uppercase tracking-wider text-ink-subtle">Eligibility Status</p>
+        <h3 id="result-status" class="tone-fg mt-0.5 font-display text-2xl font-semibold tracking-tight">
+          &mdash;
+        </h3>
+        <p id="result-summary" class="mt-1 text-sm text-ink-subtle"></p>
+      </div>
+    </div>
+
+    <!-- Key metrics -->
+    <div class="mt-6 grid grid-cols-2 gap-3 lg:grid-cols-4">
+      <div class="rounded-lg border border-hairline bg-surface-1/60 p-4">
+        <p class="text-xs text-ink-subtle">Eligible Amount</p>
+        <p id="result-amount" class="mt-1 text-lg font-semibold tracking-tight text-ink">&mdash;</p>
+      </div>
+      <div class="rounded-lg border border-hairline bg-surface-1/60 p-4">
+        <p class="text-xs text-ink-subtle">Estimated EMI</p>
+        <p id="result-emi" class="mt-1 text-lg font-semibold tracking-tight text-ink">&mdash;</p>
+      </div>
+      <div class="rounded-lg border border-hairline bg-surface-1/60 p-4">
+        <p class="text-xs text-ink-subtle">Risk Level</p>
+        <p id="result-risk" class="tone-fg mt-1 text-lg font-semibold tracking-tight">&mdash;</p>
+      </div>
+      <div class="rounded-lg border border-hairline bg-surface-1/60 p-4">
+        <p class="text-xs text-ink-subtle">Interest Rate</p>
+        <p id="result-rate" class="mt-1 text-lg font-semibold tracking-tight text-ink">&mdash;</p>
+      </div>
+    </div>
+
+    <!-- Reasoning -->
+    <div class="mt-6">
+      <p class="text-xs font-medium uppercase tracking-wider text-ink-subtle">Reasoning</p>
+      <ul id="result-reasons" class="mt-2 space-y-2"></ul>
+    </div>
+
+    <!-- Next action -->
+    <div class="tone-border tone-bg-soft mt-5 flex items-start gap-3 rounded-lg border p-4">
+      <span class="tone-fg mt-0.5 shrink-0"><Icon name="arrow-right" size="16" /></span>
+      <div>
+        <p class="text-sm font-medium text-ink">Next Suggested Action</p>
+        <p id="result-action" class="mt-0.5 text-sm text-ink-muted"></p>
+      </div>
+    </div>
+
+    <!-- AI recommendation placeholder (future Groq integration) -->
+    <div class="mt-5 rounded-lg border border-dashed border-hairline-strong bg-surface-1/40 p-4">
+      <div class="flex items-center gap-2">
+        <span class="flex h-7 w-7 items-center justify-center rounded-md bg-primary/15 text-primary">
+          <Icon name="sparkles" size="14" />
+        </span>
+        <p class="text-sm font-medium text-ink">AI Financial Recommendation</p>
+        <span class="ml-auto inline-flex items-center gap-1 rounded-full bg-surface-2 px-2 py-0.5 text-[11px] font-medium text-ink-subtle">
+          <Icon name="lock" size="11" />
+          Coming soon
+        </span>
+      </div>
+      <p class="mt-2 text-sm leading-relaxed text-ink-subtle">
+        Personalized, AI-generated guidance based on your full profile will appear here — powered by
+        Groq (llama-3.3-70b-versatile) in an upcoming module.
+      </p>
+    </div>
+  </article>
+</section>
+
+<!-- Empty state (shown before the first check) -->
+<div
+  id="loan-empty"
+  class="glass-card flex flex-col items-center justify-center p-8 text-center md:p-10"
+>
+  <span class="flex h-12 w-12 items-center justify-center rounded-full bg-surface-2 text-ink-subtle">
+    <Icon name="gauge" size="24" />
+  </span>
+  <h3 class="mt-4 text-base font-semibold tracking-tight text-ink">Your result appears here</h3>
+  <p class="mt-1.5 max-w-xs text-sm text-ink-subtle">
+    Fill in the application and run a check to see your eligibility, estimated EMI, and risk level.
+  </p>
+</div>
