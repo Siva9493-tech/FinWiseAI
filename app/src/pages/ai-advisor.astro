@@ -48,9 +48,10 @@ import { providerName } from '../services/ai';
 </DashboardLayout>
 
 <script>
-  import { loadFinancialContext } from '../utils/result-store';
+  import { loadFinancialContext, saveAdviceSummary } from '../utils/result-store';
   import { renderMarkdown } from '../utils/markdown';
   import { formatInr } from '../utils/loan';
+  import { persistAnalysis } from '../utils/persist-analysis';
   import type { FinancialContext, AdviceTurn } from '../types/advisor';
 
   // ---- Element handles ------------------------------------------------------
@@ -220,6 +221,10 @@ import { providerName } from '../services/ai';
       showState('content');
       if (markdownEl) markdownEl.innerHTML = renderMarkdown(rawAnswer);
       addToHistory(trimmed, rawAnswer);
+
+      // Cache the advice and auto-save a cloud snapshot (offline-safe).
+      saveAdviceSummary(rawAnswer);
+      void persistAnalysis('advisor');
     } catch (err) {
       if ((err as Error).name === 'AbortError') return; // superseded by a newer request
       showState('content');

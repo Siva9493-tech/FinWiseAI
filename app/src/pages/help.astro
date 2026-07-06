@@ -1,0 +1,27 @@
+---
+import DashboardLayout from '../layouts/DashboardLayout.astro';
+import Icon from '../components/Icon.astro';
+---
+
+<DashboardLayout
+  title="Help & Support — FinWise AI"
+  description="Get help and support for FinWise AI."
+  active="Help & Support"
+>
+  <div class="flex min-h-[60vh] items-center justify-center">
+    <div class="text-center">
+      <span class="flex h-14 w-14 mx-auto items-center justify-center rounded-full bg-surface-2 text-ink-subtle">
+        <Icon name="help-circle" size="28" />
+      </span>
+      <h1 class="mt-6 font-display text-2xl font-semibold tracking-tight text-ink">Help & Support</h1>
+      <p class="mt-2 max-w-sm text-sm text-ink-subtle">
+        FAQs, guides, and contact options will be available here. In the meantime,
+        feel free to explore the tools on the dashboard.
+      </p>
+      <span class="mt-4 inline-flex items-center gap-1.5 rounded-full border border-hairline bg-surface-1 px-3 py-1 text-xs font-medium text-ink-subtle">
+        <Icon name="clock" size="13" />
+        Coming Soon
+      </span>
+    </div>
+  </div>
+</DashboardLayout>

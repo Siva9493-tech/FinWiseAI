@@ -15,12 +15,12 @@ const primaryLinks: SidebarLink[] = [
   { icon: 'credit-card', label: 'Credit Score', href: '/credit-score' },
   { icon: 'calculator', label: 'EMI Calculator', href: '/emi-calculator' },
   { icon: 'brain', label: 'AI Advisor', href: '/ai-advisor' },
-  { icon: 'history', label: 'History', href: '#' },
+  { icon: 'history', label: 'History', href: '/history' },
 ];
 
 const secondaryLinks: SidebarLink[] = [
-  { icon: 'settings', label: 'Settings', href: '#' },
-  { icon: 'help-circle', label: 'Help & Support', href: '#' },
+  { icon: 'settings', label: 'Settings', href: '/settings' },
+  { icon: 'help-circle', label: 'Help & Support', href: '/help' },
 ];
 ---
 
@@ -57,7 +57,11 @@ const secondaryLinks: SidebarLink[] = [
       General
     </p>
     {secondaryLinks.map((link) => (
-      <a href={link.href} class="side-link">
+      <a
+        href={link.href}
+        class:list={['side-link', { 'is-active': link.label === active }]}
+        aria-current={link.label === active ? 'page' : undefined}
+      >
         <Icon name={link.icon} size="18" />
         {link.label}
       </a>

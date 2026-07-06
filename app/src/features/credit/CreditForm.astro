@@ -23,6 +23,7 @@ import Field from '../../components/Field.astro';
       placeholder="300–900"
       min={300}
       max={900}
+      required
     />
 
     <Field
@@ -33,6 +34,7 @@ import Field from '../../components/Field.astro';
       placeholder="50,000"
       prefix="₹"
       min={0}
+      required
     />
 
     <Field
@@ -44,6 +46,7 @@ import Field from '../../components/Field.astro';
       prefix="₹"
       min={0}
       hint="Enter 0 if none"
+      required
     />
 
     <Field
@@ -54,6 +57,7 @@ import Field from '../../components/Field.astro';
       placeholder="0"
       min={0}
       max={50}
+      required
     />
 
     <Field
@@ -64,6 +68,7 @@ import Field from '../../components/Field.astro';
       placeholder="0–100"
       min={0}
       max={100}
+      required
     />
 
     <Field
@@ -74,6 +79,7 @@ import Field from '../../components/Field.astro';
       placeholder="0"
       min={0}
       max={50}
+      required
     />
   </div>
 
@@ -101,7 +107,8 @@ import Field from '../../components/Field.astro';
 <script>
   import { analyzeCredit } from '../../utils/credit';
   import { validateCreditProfile, type RawCreditInput, type CreditField } from '../../utils/credit-validation';
-  import { saveCreditResult } from '../../utils/result-store';
+  import { saveCreditResult, saveCreditInput } from '../../utils/result-store';
+  import { persistAnalysis } from '../../utils/persist-analysis';
 
   const form = document.getElementById('credit-form') as HTMLFormElement | null;
   const result = document.getElementById('credit-result');
@@ -181,6 +188,9 @@ import Field from '../../components/Field.astro';
 
     // Persist for the AI Advisor (Financial Summary + AI context).
     saveCreditResult(a);
+    saveCreditInput(profile);
+    // Auto-save a cloud snapshot (offline-safe).
+    void persistAnalysis('credit');
 
     const article = result.querySelector('article');
     if (article) {

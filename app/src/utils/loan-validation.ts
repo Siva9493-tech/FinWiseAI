@@ -38,13 +38,7 @@ const LOAN_PURPOSES: LoanPurpose[] = [
 /** Raw string values as read from the form (all optional/loose). */
 export type RawLoanInput = Partial<Record<LoanField, string>>;
 
-function toNumber(raw: string | undefined): number | null {
-  if (raw === undefined) return null;
-  const cleaned = raw.replace(/[,\s₹]/g, '').trim();
-  if (cleaned === '') return null;
-  const n = Number(cleaned);
-  return Number.isFinite(n) ? n : null;
-}
+import { toNumber } from './parse';
 
 /**
  * Validate raw form input. Returns per-field messages and, when everything

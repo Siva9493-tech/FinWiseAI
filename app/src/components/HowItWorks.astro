@@ -55,7 +55,7 @@ const steps: Step[] = [
     <div class="relative mt-14 grid gap-8 md:grid-cols-2 lg:grid-cols-4">
       <div class="absolute top-11 left-0 hidden h-px w-full bg-gradient-to-r from-transparent via-hairline to-transparent lg:block"></div>
 
-      {steps.map((step, index) => (
+      {steps.map((step) => (
         <div class="relative z-10 flex flex-col items-center text-center">
           <div class="flex h-20 w-20 items-center justify-center rounded-full border border-hairline bg-surface-1 shadow-sm top-edge-highlight">
             <Icon name={step.icon} size="24" />

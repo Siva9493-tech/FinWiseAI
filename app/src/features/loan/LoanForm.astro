@@ -31,12 +31,12 @@ const purposeOptions = [
 
   <div class="mt-6 grid grid-cols-1 gap-x-5 gap-y-4 sm:grid-cols-2">
     <div class="sm:col-span-2">
-      <Field id="fullName" label="Full Name" type="text" placeholder="e.g. Siva Balaji" />
+      <Field id="fullName" label="Full Name" type="text" placeholder="e.g. Siva Balaji" required />
     </div>
 
-    <Field id="age" label="Age" type="number" inputmode="numeric" placeholder="21–60" min={18} max={100} />
+    <Field id="age" label="Age" type="number" inputmode="numeric" placeholder="21–60" min={18} max={100} required />
 
-    <Field id="employmentType" label="Employment Type" options={employmentOptions} />
+    <Field id="employmentType" label="Employment Type" options={employmentOptions} required />
 
     <Field
       id="monthlyIncome"
@@ -46,6 +46,7 @@ const purposeOptions = [
       placeholder="50,000"
       prefix="₹"
       min={0}
+      required
     />
 
     <Field
@@ -57,6 +58,7 @@ const purposeOptions = [
       prefix="₹"
       min={0}
       hint="Enter 0 if none"
+      required
     />
 
     <Field
@@ -67,6 +69,7 @@ const purposeOptions = [
       placeholder="300–900"
       min={300}
       max={900}
+      required
     />
 
     <Field
@@ -77,6 +80,7 @@ const purposeOptions = [
       placeholder="8,00,000"
       prefix="₹"
       min={0}
+      required
     />
 
     <Field
@@ -87,10 +91,11 @@ const purposeOptions = [
       placeholder="60"
       min={6}
       max={360}
+      required
     />
 
     <div class="sm:col-span-2">
-      <Field id="loanPurpose" label="Loan Purpose" options={purposeOptions} />
+      <Field id="loanPurpose" label="Loan Purpose" options={purposeOptions} required />
     </div>
   </div>
 
@@ -118,7 +123,8 @@ const purposeOptions = [
 <script>
   import { evaluateEligibility, formatInr } from '../../utils/loan';
   import { validateApplication, type RawLoanInput, type LoanField } from '../../utils/loan-validation';
-  import { saveLoanResult } from '../../utils/result-store';
+  import { saveLoanResult, saveLoanInput } from '../../utils/result-store';
+  import { persistAnalysis } from '../../utils/persist-analysis';
 
   const form = document.getElementById('loan-form') as HTMLFormElement | null;
   const result = document.getElementById('loan-result');
@@ -199,6 +205,9 @@ const purposeOptions = [
 
     // Persist for the AI Advisor (Financial Summary + AI context).
     saveLoanResult(r);
+    saveLoanInput(app);
+    // Auto-save a cloud snapshot (offline-safe).
+    void persistAnalysis('loan');
 
     const article = result.querySelector('article');
     if (article) {

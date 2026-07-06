@@ -37,6 +37,7 @@ const tenureUnitOptions = [
         placeholder="10,00,000"
         prefix="₹"
         min={1000}
+        required
       />
     </div>
 
@@ -49,6 +50,7 @@ const tenureUnitOptions = [
       step={0.1}
       min={0.1}
       max={50}
+      required
     />
 
     <Field
@@ -58,11 +60,12 @@ const tenureUnitOptions = [
       inputmode="numeric"
       placeholder="e.g. 20"
       min={1}
+      required
     />
 
-    <Field id="tenureUnit" label="Tenure Unit" options={tenureUnitOptions} />
+    <Field id="tenureUnit" label="Tenure Unit" options={tenureUnitOptions} required />
 
-    <Field id="loanType" label="Loan Type" options={loanTypeOptions} />
+    <Field id="loanType" label="Loan Type" options={loanTypeOptions} required />
   </div>
 
   <div class="mt-6 flex flex-col gap-3 sm:flex-row">
@@ -89,7 +92,8 @@ const tenureUnitOptions = [
 <script>
   import { calculateEmiBreakdown, formatInr } from '../../utils/emi';
   import { validateEmiInput, type RawEmiInput, type EmiField } from '../../utils/emi-validation';
-  import { saveEmiResult } from '../../utils/result-store';
+  import { saveEmiResult, saveEmiInput } from '../../utils/result-store';
+  import { persistAnalysis } from '../../utils/persist-analysis';
 
   const form = document.getElementById('emi-form') as HTMLFormElement | null;
   const result = document.getElementById('emi-result');
@@ -152,6 +156,9 @@ const tenureUnitOptions = [
 
     // Persist for the AI Advisor (Financial Summary + AI context).
     saveEmiResult(r);
+    saveEmiInput(input);
+    // Auto-save a cloud snapshot (offline-safe).
+    void persistAnalysis('emi');
 
     const article = result.querySelector('article');
     if (article) {

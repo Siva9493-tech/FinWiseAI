@@ -85,11 +85,14 @@ const navLinks = [
     const closeMenu = () => {
       menu.classList.add('hidden');
       toggle.setAttribute('aria-expanded', 'false');
+      toggle.focus();
     };
 
     const openMenu = () => {
       menu.classList.remove('hidden');
       toggle.setAttribute('aria-expanded', 'true');
+      const firstLink = menu.querySelector('a');
+      if (firstLink) firstLink.focus();
     };
 
     toggle.addEventListener('click', () => {

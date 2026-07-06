@@ -3,11 +3,12 @@
 // Structured so a future Groq-powered "AI Credit Analysis" can consume the
 // full result without recomputation.
 
+import type { ResultTone } from './loan';
+export type { ResultTone };
+
 export type CreditRating = 'Poor' | 'Fair' | 'Good' | 'Very Good' | 'Excellent';
 
 export type CreditRiskLevel = 'very-low' | 'low' | 'medium' | 'high' | 'very-high';
-
-export type ResultTone = 'green' | 'yellow' | 'red';
 
 /** Validated inputs from the credit analysis form. */
 export interface CreditProfile {

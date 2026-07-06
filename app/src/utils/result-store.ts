@@ -8,15 +8,20 @@
 // Runs in the browser only. All access is guarded so SSR/import never touches
 // window.
 
-import type { EligibilityResult } from '../types/loan';
-import type { CreditAnalysis } from '../types/credit';
-import type { EmiResult } from '../types/emi';
+import type { EligibilityResult, LoanApplication } from '../types/loan';
+import type { CreditAnalysis, CreditProfile } from '../types/credit';
+import type { EmiResult, EmiInput } from '../types/emi';
 import type { FinancialContext } from '../types/advisor';
+import type { AnalysisInputs } from '../services/types';
 
 const KEYS = {
   loan: 'finwise:result:loan',
   credit: 'finwise:result:credit',
   emi: 'finwise:result:emi',
+  loanInput: 'finwise:input:loan',
+  creditInput: 'finwise:input:credit',
+  emiInput: 'finwise:input:emi',
+  advice: 'finwise:result:advice',
 } as const;
 
 function save<T>(key: string, value: T): void {
@@ -41,6 +46,26 @@ function load<T>(key: string): T | undefined {
 export const saveLoanResult = (r: EligibilityResult) => save(KEYS.loan, r);
 export const saveCreditResult = (r: CreditAnalysis) => save(KEYS.credit, r);
 export const saveEmiResult = (r: EmiResult) => save(KEYS.emi, r);
+
+// Raw validated inputs — cached so a saved snapshot can denormalize the
+// applicant's details (name, age, income…) without re-reading the form.
+export const saveLoanInput = (i: LoanApplication) => save(KEYS.loanInput, i);
+export const saveCreditInput = (i: CreditProfile) => save(KEYS.creditInput, i);
+export const saveEmiInput = (i: EmiInput) => save(KEYS.emiInput, i);
+
+/** Cache the latest AI advice (plain Markdown) for the snapshot summary. */
+export const saveAdviceSummary = (text: string) => save(KEYS.advice, text);
+export const loadAdviceSummary = (): string | undefined =>
+  load<string>(KEYS.advice);
+
+/** Read every cached raw input for snapshot denormalization. */
+export function loadAnalysisInputs(): AnalysisInputs {
+  return {
+    loan: load<LoanApplication>(KEYS.loanInput),
+    credit: load<CreditProfile>(KEYS.creditInput),
+    emi: load<EmiInput>(KEYS.emiInput),
+  };
+}
 
 /** Read every available result into a single FinancialContext for the advisor. */
 export function loadFinancialContext(): FinancialContext {

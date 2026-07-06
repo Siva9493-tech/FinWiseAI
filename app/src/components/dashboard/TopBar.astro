@@ -40,7 +40,7 @@ import Icon from '../Icon.astro';
       <span class="absolute right-2.5 top-2.5 h-2 w-2 rounded-full bg-primary ring-2 ring-canvas"></span>
     </button>
 
-    <a href="#" class="btn-primary hidden sm:inline-flex">
+    <a href="/loan-eligibility" class="btn-primary hidden sm:inline-flex">
       <Icon name="plus" size="16" />
       New Analysis
     </a>
@@ -70,12 +70,14 @@ import Icon from '../Icon.astro';
       sidebar.classList.remove('-translate-x-full');
       backdrop.classList.remove('hidden');
       toggle.setAttribute('aria-expanded', 'true');
+      sidebar.querySelector('a')?.focus();
     };
 
     const close = () => {
       sidebar.classList.add('-translate-x-full');
       backdrop.classList.add('hidden');
       toggle.setAttribute('aria-expanded', 'false');
+      toggle.focus();
     };
 
     toggle.addEventListener('click', () => {
