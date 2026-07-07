@@ -40,13 +40,13 @@ Every financial formula (loan eligibility, EMI, credit analysis) is computed **l
 
 ## Screenshots
 
-> Placeholders — replace with actual captures before publishing.
-
 | | | |
 |---|---|---|
 | ![Landing Page](docs/screenshots/landing.png) | ![Dashboard](docs/screenshots/dashboard.png) | ![Loan Eligibility](docs/screenshots/loan-eligibility.png) |
 | ![Credit Score](docs/screenshots/credit-score.png) | ![EMI Calculator](docs/screenshots/emi-calculator.png) | ![AI Advisor](docs/screenshots/ai-advisor.png) |
-| ![History](docs/screenshots/history.png) | | |
+| ![History](docs/screenshots/history.png) | ![Mobile View](docs/screenshots/mobile_view.png) | ![Google Sheets View](docs/screenshots/google_sheet.png) |
+| ![Notifications](docs/screenshots/notifications.png) | | |
+
 
 ---
 
