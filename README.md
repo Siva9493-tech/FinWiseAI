@@ -24,6 +24,36 @@ Every financial formula (loan eligibility, EMI, credit analysis) is computed **l
 
 ---
 
+## 🎥 Project Demo
+
+Watch the complete walkthrough:
+
+[![FinWise AI Demo](docs/screenshots/thumbnail.png)](demo/FinWiseAI-Demo.mp4)
+
+> ▶ [Play the demo video](demo/FinWiseAI-Demo.mp4)
+
+The demo showcases:
+
+- Landing Page
+- Dashboard
+- Loan Eligibility Checker
+- Credit Score Analyzer
+- EMI Calculator
+- AI Financial Advisor
+- Google Sheets Cloud Sync
+- History Management
+- Notifications
+- Responsive Design
+
+---
+
+## 📄 Documentation
+
+- [Open Project Documentation (PDF)](docs/FinWise_AI_Internship_Report.pdf)
+- [Features](docs/FEATURES.md) · [Setup](docs/SETUP.md) · [API](docs/API.md) · [Architecture](docs/ARCHITECTURE.md) · [Testing](docs/TESTING.md) · [Deployment](docs/DEPLOYMENT.md)
+
+---
+
 ## Features
 
 | Module | Description | Deterministic | AI-Powered |
@@ -156,15 +186,55 @@ src/
 │   ├── help.astro        #   Placeholder
 │   └── api/
 │       ├── advice.ts     #   POST → streamed AI response (SSR-only)
-│       └ history.ts      #   GET/POST → Google Sheets proxy (SSR-only)
+│       └── history.ts    #   GET/POST → Google Sheets proxy (SSR-only)
 ├── styles/
-│   └ global.css          #   Tailwind v4 @theme tokens + component classes
+│   └── global.css        #   Tailwind v4 @theme tokens + component classes
 public/
 ├── favicon.svg
 ├── favicon.ico
 docs/
 ├── google-apps-script.gs # Deploy this as a Google Apps Script Web App
 ```
+
+### Repository-level layout
+
+```
+FinWiseAI/
+├── app/                    # The Astro application (source above)
+├── demo/
+│   └── FinWiseAI-Demo.mp4  # Full walkthrough video
+├── docs/                   # Project documentation
+│   ├── ARCHITECTURE.md
+│   ├── API.md
+│   ├── DEPLOYMENT.md
+│   ├── FEATURES.md
+│   ├── SETUP.md
+│   ├── TESTING.md
+│   ├── FinWise_AI_Internship_Report.pdf
+│   └── screenshots/
+│       ├── landing.png
+│       ├── dashboard.png
+│       ├── loan-eligibility.png
+│       ├── credit-score.png
+│       ├── emi-calculator.png
+│       ├── ai-advisor.png
+│       ├── history.png
+│       ├── notifications.png
+│       ├── mobile_view.png
+│       └── google_sheet.png
+└── README.md
+```
+
+### Documentation index
+
+| Document | Contents |
+|---|---|
+| [FEATURES.md](docs/FEATURES.md) | Complete, implementation-accurate feature list |
+| [SETUP.md](docs/SETUP.md) | Prerequisites, install, env vars, run/build/preview, troubleshooting |
+| [API.md](docs/API.md) | Every API route: request, response, errors, streaming, security |
+| [ARCHITECTURE.md](docs/ARCHITECTURE.md) | Architecture, data flow, provider abstraction, Mermaid diagrams |
+| [TESTING.md](docs/TESTING.md) | Test cases and expected outputs across all layers |
+| [DEPLOYMENT.md](docs/DEPLOYMENT.md) | Vercel + Google Apps Script deployment and checklist |
 
 ---
 
