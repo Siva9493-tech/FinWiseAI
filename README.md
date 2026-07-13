@@ -30,7 +30,7 @@ Watch the complete walkthrough:
 
 [![FinWise AI Demo](docs/screenshots/thumbnail.png)](demo/FinWiseAI-Demo.mp4)
 
-> ▶ [Play the demo video](demo/FinWiseAI-Demo.mp4)
+> ▶ [Play the demo video](https://github.com/user-attachments/assets/f3e66b84-7941-4476-af21-d2957496e70d)
 
 The demo showcases:
 
