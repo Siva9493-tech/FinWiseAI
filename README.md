@@ -439,6 +439,16 @@ This project provided hands-on experience with:
 
 ---
 
+## 📬 Contact
+
+**Siva Balaji** — B.Tech CSE (AI & ML)
+Machine Learning Enthusiast · Python · Data Science
+
+- LinkedIn: *[linkedin.com/in/m-siva-balaji](https://www.linkedin.com/in/m-siva-balaji/)*
+- GitHub: *[github.com/Siva9493-tech](https://github.com/Siva9493-tech)*
+
+---
+
 ## License
 
 This project is developed for educational and portfolio purposes as part of the SmartBridge Vibe Coding Internship. All rights reserved by the author.
