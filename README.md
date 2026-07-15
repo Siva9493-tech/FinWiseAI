@@ -46,6 +46,13 @@ The demo showcases:
 - Responsive Design
 
 ---
+## 🌐 Live Demo
+
+Experience FinWise AI live:
+
+**🔗 Live Application:** https://finwise-ai-blue.vercel.app/
+
+---
 
 ## 📄 Documentation
 
